@@ -1,307 +1,621 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Checkout - Hitaishi Fashion</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Checkout - Hitaishi Fashions</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    body {
-      font-family: "Segoe UI", sans-serif;
-      background: #f3f3f3;
-      margin: 0;
-      padding: 0;
+    :root{
+      --accent:#ffa41c;
+      --accent-dark:#fa8900;
+      --muted:#6b6f76;
+      --card-bg:#fff;
+      --shadow: 0 6px 18px rgba(13,22,26,0.06);
+      --radius:12px;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
     }
 
-    .container {
-      max-width: 1200px;
-      margin: 30px auto;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 25px;
-      padding: 0 15px;
-    }
+    body{ margin:0; background:#f3f5f7; color:#111; line-height:1.35; -webkit-font-smoothing:antialiased; }
+    .page { max-width:1200px; margin:28px auto; padding:0 16px; }
+    .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; gap:12px; }
+    .header h1 { margin:0; font-size:1.1rem; letter-spacing:0.2px; color:#111; }
+    .breadcrumb { color:var(--muted); font-size:0.9rem; }
+    .columns { display:grid; grid-template-columns: 1fr 380px; gap:20px; }
 
-    /* ---- Left: Address & Payment ---- */
-    .checkout-left {
-      flex: 2;
-      background: #fff;
-      border-radius: 10px;
-      padding: 25px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
+    .card { background:var(--card-bg); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; }
+    .section-title { font-weight:700; margin:0 0 10px 0; color:#111; font-size:1rem; }
+    .muted { color:var(--muted); font-size:0.95rem; }
 
-    .checkout-left h3 {
-      margin-top: 0;
-      color: #111;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 8px;
-      margin-bottom: 15px;
+    /* Address cards */
+    .addresses { display:flex; gap:12px; flex-wrap:wrap; }
+    .addr-card {
+      border:1px solid #e7eaee;
+      padding:12px;
+      border-radius:10px;
+      width:calc(50% - 6px);
+      box-sizing:border-box;
+      background:#fff;
+      cursor:pointer;
+      position:relative;
     }
+    .addr-card.selected { border-color:var(--accent); box-shadow:0 6px 16px rgba(255,164,28,0.08); transform:translateY(-2px); }
+    .addr-meta { font-size:0.95rem; color:#111; margin-bottom:6px; }
+    .addr-small { font-size:0.88rem; color:var(--muted); }
 
-    .form-group {
-      margin-bottom: 15px;
+    .addr-actions { display:flex; gap:8px; margin-top:8px; }
+    .btn { padding:8px 10px; border-radius:8px; border:1px solid #e3e6ea; background:#fff; cursor:pointer; font-weight:600; }
+    .btn.primary { background:linear-gradient(90deg,var(--accent),var(--accent-dark)); border:none; color:#111; }
+    .btn.ghost { background:transparent; }
+
+    .add-address { display:flex; gap:12px; align-items:center; justify-content:center; flex-direction:column; padding:18px; color:var(--muted); border-style:dashed; }
+
+    /* Payment options */
+    .payment-grid { display:flex; gap:12px; flex-wrap:wrap; margin-top:8px; }
+    .pay-option {
+      flex:1 1 160px; min-width:140px; border:1px solid #e7eaee; padding:10px; border-radius:10px; cursor:pointer; display:flex; gap:8px; align-items:center; transition:all .14s ease; background:#fbfcfd;
     }
+    .pay-option.active { border-color:var(--accent); box-shadow:0 4px 12px rgba(255,164,28,0.12); transform:translateY(-2px); }
+    .small { font-size:0.9rem; color:var(--muted); }
 
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-      color: #333;
-    }
+    /* Right summary */
+    .summary { position:sticky; top:24px; }
+    .summary .summary-row { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px dashed #eee; }
+    .summary .summary-row.total { border-top:1px solid #eee; font-weight:700; color:#b12704; font-size:1.1rem; padding-top:14px; }
+    .cart-items { max-height:320px; overflow:auto; margin-top:10px; }
+    .cart-item { display:flex; gap:12px; padding:12px 0; border-bottom:1px solid #f1f3f5; align-items:center; }
+    .cart-item img { width:64px; height:64px; object-fit:contain; border-radius:8px; background:#fff; border:1px solid #efefef; }
+    .cart-item .meta { font-size:0.95rem; color:#222; }
 
-    input, select, textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 1rem;
-    }
+    .place-order { width:100%; display:inline-block; text-align:center; padding:12px 14px; border-radius:10px; background:linear-gradient(90deg,var(--accent),var(--accent-dark)); color:#111; font-weight:700; border:none; cursor:pointer; margin-top:14px; box-shadow:0 6px 18px rgba(255,164,28,0.12); }
+    .place-order:disabled { opacity:0.6; cursor:not-allowed; }
 
-    textarea {
-      resize: vertical;
-    }
+    /* Modal */
+    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center; z-index:9999; }
+    .modal { background:#fff; border-radius:12px; padding:18px; width:520px; max-width:95%; box-shadow:0 12px 40px rgba(2,6,23,0.2); }
+    .form-row { display:flex; gap:12px; margin-bottom:10px; }
+    .form-row .col { flex:1; }
+    input[type="text"], input[type="tel"], textarea, select { width:100%; padding:10px 12px; border-radius:8px; border:1px solid #e3e6ea; background:#fff; font-size:0.95rem; box-sizing:border-box; }
+    textarea { min-height:80px; resize:vertical; }
 
-    /* ---- Right: Summary ---- */
-    .checkout-right {
-      flex: 1;
-      background: #fff;
-      border-radius: 10px;
-      padding: 25px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      min-width: 300px;
-      height: fit-content;
-    }
-
-    .summary-item {
-      display: flex;
-      justify-content: space-between;
-      margin: 10px 0;
-    }
-
-    .summary-total {
-      font-weight: bold;
-      color: #b12704;
-      font-size: 1.2rem;
-      border-top: 1px solid #eee;
-      padding-top: 10px;
-    }
-
-    .place-order-btn {
-      width: 100%;
-      background: #ffa41c;
-      color: white;
-      border: none;
-      padding: 14px;
-      border-radius: 8px;
-      font-size: 1.1rem;
-      margin-top: 25px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .place-order-btn:hover {
-      background: #fa8900;
-    }
-
-    .cart-items-preview {
-      margin-top: 15px;
-    }
-
-    .cart-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 0;
-      border-bottom: 1px solid #eee;
-    }
-
-    .cart-item img {
-      width: 60px;
-      height: 60px;
-      object-fit: contain;
-      border-radius: 6px;
-      border: 1px solid #ddd;
-    }
-
-    .cart-item p {
-      margin: 0;
-      font-size: 0.9rem;
-      color: #333;
-    }
-
-    @media (max-width: 900px) {
-      .container {
-        flex-direction: column;
-      }
+    @media (max-width:980px){
+      .columns{ grid-template-columns: 1fr; }
+      .addr-card { width:100%; }
+      .summary { position:static; margin-top:12px; }
     }
   </style>
 </head>
 <body>
-
-  <div class="container">
-    <!-- Left Section: Address & Payment -->
-    <div class="checkout-left">
-      <h3>Delivery Address</h3>
-
-      <div class="form-group">
-        <label>Full Name</label>
-        <input type="text" id="name" placeholder="Enter full name" required>
+  <div class="page">
+    <div class="header">
+      <div>
+        <h1>Checkout</h1>
+        <div class="breadcrumb">Home › Cart › <strong>Checkout</strong></div>
       </div>
-
-      <div class="form-group">
-        <label>Mobile Number</label>
-        <input type="text" id="mobile" placeholder="Enter mobile number" required>
-      </div>
-
-      <div class="form-group">
-        <label>Address</label>
-        <textarea id="address" rows="3" placeholder="Enter full address" required></textarea>
-      </div>
-
-      <div class="form-group">
-        <label>City</label>
-        <input type="text" id="city" placeholder="City" required>
-      </div>
-
-      <div class="form-group">
-        <label>State</label>
-        <input type="text" id="state" placeholder="State" required>
-      </div>
-
-      <div class="form-group">
-        <label>PIN Code</label>
-        <input type="text" id="pincode" placeholder="6-digit code" required>
-      </div>
-
-      <h3>Payment Method</h3>
-      <div class="form-group">
-        <label><input type="radio" name="payment" value="cod" checked> Cash on Delivery (COD)</label><br>
-        <label><input type="radio" name="payment" value="upi"> UPI (Google Pay / PhonePe)</label><br>
-        <label><input type="radio" name="payment" value="card"> Credit / Debit Card</label>
-      </div>
+      <div class="muted" id="signedInAs">Checking sign-in…</div>
     </div>
 
-    <!-- Right Section: Order Summary -->
-    <div class="checkout-right">
-      <h3>Order Summary</h3>
-      <div id="summaryItems"></div>
-      <div class="summary-total">
-        <span>Total:</span>
-        <span id="grandTotal">₹0</span>
+    <div class="columns">
+      <!-- LEFT -->
+      <div class="card" id="leftCol">
+        <!-- Addresses -->
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div class="section-title">Delivery Address</div>
+              <div class="muted">Choose an address or add a new one</div>
+            </div>
+            <div>
+              <button id="addAddressBtn" class="btn">+ Add address</button>
+            </div>
+          </div>
+
+          <div style="margin-top:12px;">
+            <div class="addresses" id="addressesRoot"></div>
+          </div>
+        </div>
+
+        <hr style="margin:18px 0;border:none;border-top:1px solid #f0f2f4"/>
+
+        <!-- Payment -->
+        <div>
+          <div class="section-title">Payment Method</div>
+          <div class="muted">Choose a payment option</div>
+
+          <div class="payment-grid" id="paymentGrid" style="margin-top:12px;">
+            <label class="pay-option" data-method="cod">
+              <input type="radio" name="payment" value="cod" checked />
+              <div><i class="fa-solid fa-truck"></i></div>
+              <div>
+                <div style="font-weight:700">Cash on Delivery</div>
+                <div class="small">Pay when you receive</div>
+              </div>
+            </label>
+
+            <label class="pay-option" data-method="upi">
+              <input type="radio" name="payment" value="upi" />
+              <div><i class="fa-solid fa-qrcode"></i></div>
+              <div>
+                <div style="font-weight:700">UPI</div>
+                <div class="small">GPay · PhonePe · Paytm UPI</div>
+              </div>
+            </label>
+
+            <label class="pay-option" data-method="card">
+              <input type="radio" name="payment" value="card" />
+              <div><i class="fa-solid fa-credit-card"></i></div>
+              <div>
+                <div style="font-weight:700">Card</div>
+                <div class="small">Debit / Credit / Netbanking</div>
+              </div>
+            </label>
+
+            <label class="pay-option" data-method="wallets">
+              <input type="radio" name="payment" value="wallets" />
+              <div><i class="fa-solid fa-wallet"></i></div>
+              <div>
+                <div style="font-weight:700">Wallets</div>
+                <div class="small">Amazon Pay, Paytm, PhonePe wallet</div>
+              </div>
+            </label>
+          </div>
+
+          <div id="paymentDetails" style="margin-top:14px;"></div>
+        </div>
       </div>
-      <button class="place-order-btn" onclick="placeOrder()">Place Order</button>
+
+      <!-- RIGHT -->
+      <aside class="summary card" id="rightCol">
+        <div class="section-title">Order Summary</div>
+        <div id="summaryCount" class="muted" style="margin-bottom:8px;"></div>
+
+        <div class="cart-items" id="cartItems"></div>
+
+        <div class="summary-row" style="margin-top:12px;">
+          <div class="muted">Subtotal</div>
+          <div id="subTotal">₹0</div>
+        </div>
+        <div class="summary-row">
+          <div class="muted">Delivery</div>
+          <div id="deliveryFee">FREE</div>
+        </div>
+        <div class="summary-row total">
+          <div>Total</div>
+          <div id="grandTotal">₹0</div>
+        </div>
+
+        <div class="note" id="orderNote">Secure checkout · Your payment is protected.</div>
+
+        <button id="placeOrderBtn" class="place-order">Place Order</button>
+      </aside>
     </div>
   </div>
 
-  <script>
-    let cart = [];
-
-    function loadSummary() {
-      try {
-        const stored = localStorage.getItem("cart");
-        cart = stored ? JSON.parse(stored) : [];
-        if (!Array.isArray(cart)) cart = [];
-      } catch {
-        cart = [];
-      }
-
-      const summaryContainer = document.getElementById("summaryItems");
-      const totalElem = document.getElementById("grandTotal");
-
-      if (cart.length === 0) {
-        summaryContainer.innerHTML = "<p>Your cart is empty.</p>";
-        totalElem.textContent = "₹0";
-        return;
-      }
-
-      let total = 0;
-      summaryContainer.innerHTML = `
-        <div class="cart-items-preview">
-          ${cart.map(p => {
-            let imgSrc = "https://placehold.co/80x80?text=No+Image";
-            if (p.images && p.images.length) {
-              if (p.images[0].startsWith("/uploads")) {
-                imgSrc = "http://localhost:5000" + p.images[0];
-              } else {
-                imgSrc = "http://localhost:5000/uploads/" + p.images[0].replace(/^\/uploads\//, "");
-              }
-            }
-
-            const price = parseFloat(p.finalPrice) || 0;
-            const qty = parseInt(p.quantity) || 1;
-            const subtotal = price * qty;
-            total += subtotal;
-
-            return `
-              <div class="cart-item">
-                <img src="${imgSrc}" alt="${p.name}">
-                <div>
-                  <p>${p.name}</p>
-                  <p>Qty: ${qty}</p>
-                  <p>₹${subtotal.toLocaleString("en-IN")}</p>
-                </div>
-              </div>`;
-          }).join("")}
+  <!-- Address Modal -->
+  <div id="addressModal" style="display:none;">
+    <div class="modal-backdrop" id="modalBackdrop">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <h3 id="modalTitle">Add Delivery Address</h3>
+          <button id="closeModal" class="btn">X</button>
         </div>
-      `;
 
-      totalElem.textContent = "\u20B9" + total.toLocaleString("en-IN");
+        <div>
+          <div class="form-row">
+            <div class="col">
+              <label>Full name</label>
+              <input id="modal_name" type="text" />
+            </div>
+            <div class="col">
+              <label>Mobile</label>
+              <input id="modal_mobile" type="tel" />
+            </div>
+          </div>
+
+          <div style="margin-bottom:10px;">
+            <label>Address</label>
+            <textarea id="modal_address"></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="col">
+              <label>City</label>
+              <input id="modal_city" type="text" />
+            </div>
+            <div class="col">
+              <label>State</label>
+              <input id="modal_state" type="text" />
+            </div>
+            <div style="width:120px;">
+              <label>PIN</label>
+              <input id="modal_pincode" type="text" maxlength="6" />
+            </div>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end;">
+            <button id="saveAddrBtn" class="btn primary">Save address</button>
+            <button id="cancelAddrBtn" class="btn ghost">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ======= CONFIG (real backend paths) ======= */
+const AUTH_CHECK_URL = "http://localhost:5000/api/check-auth";
+const USER_INFO_URL = "http://localhost:5000/api/user";
+const PLACE_ORDER_URL = "http://localhost:5000/api/orders";
+const LOGIN_PAGE = "login.html";
+
+/* ======= Helpers ======= */
+function escapeHtml(s = "") {
+  return String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
+}
+function formatINR(n){ try{ return "₹" + Number(n).toLocaleString("en-IN"); }catch{ return "₹0"; }}
+
+/* ======= State ======= */
+let currentUser = null;
+let cart = [];
+let selectedPayment = "cod";
+let addresses = [];     // saved addresses (localStorage)
+let selectedAddressId = null;
+
+/* ======= Auth check ======= */
+async function checkAuthOrRedirect(){
+  try{
+    const res = await fetch(AUTH_CHECK_URL, { credentials: "include" });
+    if(!res.ok){
+      const returnTo = encodeURIComponent(window.location.pathname);
+      window.location.href = `${LOGIN_PAGE}?returnTo=${returnTo}`;
+      return false;
     }
-
-    function placeOrder() {
-  const name = document.getElementById("name").value.trim();
-  const mobile = document.getElementById("mobile").value.trim();
-  const address = document.getElementById("address").value.trim();
-  const city = document.getElementById("city").value.trim();
-  const state = document.getElementById("state").value.trim();
-  const pincode = document.getElementById("pincode").value.trim();
-  const payment = document.querySelector('input[name="payment"]:checked')?.value;
-
-  if (!name || !mobile || !address || !city || !state || !pincode) {
-    alert("⚠️ Please fill in all delivery details!");
-    return;
+    // fetch user details
+    const userRes = await fetch(USER_INFO_URL, { credentials: "include" });
+    if (userRes.ok) {
+      currentUser = await userRes.json();
+      document.getElementById("signedInAs").textContent = `Signed in as ${currentUser.firstName || currentUser.email || "User"}`;
+    } else {
+      currentUser = null;
+      document.getElementById("signedInAs").textContent = "Signed in";
+    }
+    return true;
+  }catch(err){
+    console.error("Auth check failed:", err);
+    // network issue — redirect to login to be safe
+    const returnTo = encodeURIComponent(window.location.pathname);
+    window.location.href = `${LOGIN_PAGE}?returnTo=${returnTo}`;
+    return false;
   }
-
-  if (cart.length === 0) {
-    alert("Your cart is empty!");
-    return;
-  }
-
-  // 🧾 Create order data before clearing the cart
-  const order = {
-    id: "HF" + Date.now().toString().slice(-6),
-    name,
-    mobile,
-    address,
-    city,
-    state,
-    pincode,
-    date: new Date().toLocaleDateString("en-IN"),
-    total: document.getElementById("grandTotal").textContent.replace("₹", "").trim(),
-    payment,
-    status: "Processing",
-    items: cart,
-  };
-
-  // 📦 Save to localStorage
-  const orders = JSON.parse(localStorage.getItem("orders") || "[]");
-  orders.push(order);
-  localStorage.setItem("orders", JSON.stringify(orders));
-
-  // 🧹 Optional: Save for thankyou.html
-  localStorage.setItem("lastOrderTotal", order.total);
-  localStorage.setItem("lastPaymentMethod", payment);
-
-  // 🛒 Clear cart
-  localStorage.removeItem("cart");
-
-  alert(`✅ Order placed successfully!\n\nThank you, ${name}!\nPayment: ${payment.toUpperCase()}`);
-  window.location.href = "thankyou.html"; // redirect to success page
 }
 
-    loadSummary();
+/* ======= Cart loading & render ======= */
+function loadCart(){
+  try {
+    const stored = localStorage.getItem("cart");
+    cart = stored ? JSON.parse(stored) : [];
+    if(!Array.isArray(cart)) cart = [];
+  } catch {
+    cart = [];
+  }
+  renderCart();
+}
+function renderCart(){
+  const cartItemsEl = document.getElementById("cartItems");
+  cartItemsEl.innerHTML = "";
+  if(cart.length === 0){
+    cartItemsEl.innerHTML = `<div class="muted">Your cart is empty.</div>`;
+    document.getElementById("summaryCount").textContent = "0 items";
+    document.getElementById("subTotal").textContent = formatINR(0);
+    document.getElementById("grandTotal").textContent = formatINR(0);
+    return;
+  }
+  let subtotal = 0;
+  cart.forEach(item => {
+    const price = Number(item.price || item.finalPrice || 0);
+    const qty = Number(item.quantity || 1);
+    const itemTotal = price * qty;
+    subtotal += itemTotal;
+    const div = document.createElement("div");
+    div.className = "cart-item";
+    const img = document.createElement("img");
+    img.src = (item.image && item.image.startsWith("http")) ? item.image : (item.image ? item.image : "https://placehold.co/80x80?text=No+Image");
+    img.alt = escapeHtml(item.name || "Product");
+    const meta = document.createElement("div"); meta.className = "meta";
+    const nameP = document.createElement("div"); nameP.textContent = item.name || "Product";
+    const qtyP = document.createElement("div"); qtyP.className = "small"; qtyP.textContent = `Qty: ${qty}`;
+    const priceP = document.createElement("div"); priceP.className = "small"; priceP.textContent = formatINR(itemTotal);
+    meta.appendChild(nameP); meta.appendChild(qtyP); meta.appendChild(priceP);
+    div.appendChild(img); div.appendChild(meta);
+    cartItemsEl.appendChild(div);
+  });
+  document.getElementById("summaryCount").textContent = `${cart.length} item${cart.length>1?'s':''}`;
+  document.getElementById("subTotal").textContent = formatINR(subtotal);
+  document.getElementById("grandTotal").textContent = formatINR(subtotal); // no delivery fee
+}
 
-  </script>
+/* ======= Address book (local) ======= */
+function loadAddresses(){
+  try { addresses = JSON.parse(localStorage.getItem("hf_addresses") || "[]"); } catch { addresses = []; }
+  // if none, create a default pre-filled address from user (if available)
+  if(addresses.length === 0 && currentUser){
+    const defaultAddr = {
+      id: "a1",
+      name: (currentUser.firstName? (currentUser.firstName + (currentUser.lastName ? " " + currentUser.lastName : "")) : ""),
+      mobile: currentUser.mobile || "",
+      address: "",
+      city: "",
+      state: "",
+      pincode: ""
+    };
+    // do not auto-save; show empty list but prefill on modal
+  }
+  renderAddresses();
+}
+function saveAddresses(){ localStorage.setItem("hf_addresses", JSON.stringify(addresses)); }
+function renderAddresses(){
+  const root = document.getElementById("addressesRoot");
+  root.innerHTML = "";
+  if(addresses.length === 0){
+    // show placeholder "add address" card
+    const addCard = document.createElement("div");
+    addCard.className = "addr-card add-address";
+    addCard.innerHTML = `<div style="font-weight:700;">No saved addresses</div><div class="addr-small">Add a delivery address to continue</div>`;
+    addCard.addEventListener("click", openAddModal);
+    root.appendChild(addCard);
+    return;
+  }
+  addresses.forEach(addr => {
+    const el = document.createElement("div");
+    el.className = "addr-card" + (addr.id === selectedAddressId ? " selected" : "");
+    el.dataset.id = addr.id;
+    el.innerHTML = `
+      <div class="addr-meta">${escapeHtml(addr.name)} · ${escapeHtml(addr.mobile)}</div>
+      <div class="addr-small">${escapeHtml(addr.address)} ${addr.city?(", " + escapeHtml(addr.city)):""} ${addr.pincode?("-" + escapeHtml(addr.pincode)):""}</div>
+      <div class="addr-actions">
+        <button class="btn useBtn">Use this address</button>
+        <button class="btn" data-edit> Edit </button>
+        <button class="btn" data-delete> Delete </button>
+      </div>
+    `;
+    el.querySelector(".useBtn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      selectAddress(addr.id);
+    });
+    el.querySelector("[data-edit]").addEventListener("click", (e) => {
+      e.stopPropagation();
+      openEditModal(addr.id);
+    });
+    el.querySelector("[data-delete]").addEventListener("click", (e) => {
+      e.stopPropagation();
+      if(confirm("Delete this address?")) {
+        addresses = addresses.filter(a => a.id !== addr.id);
+        if(selectedAddressId === addr.id) selectedAddressId = null;
+        saveAddresses(); renderAddresses();
+      }
+    });
+    el.addEventListener("click", () => selectAddress(addr.id));
+    root.appendChild(el);
+  });
+
+  // add an "Add address" card
+  const addCard = document.createElement("div");
+  addCard.className = "addr-card add-address";
+  addCard.innerHTML = `<div style="font-weight:700;">+ Add new address</div><div class="addr-small">Add another delivery address</div>`;
+  addCard.addEventListener("click", openAddModal);
+  root.appendChild(addCard);
+}
+function selectAddress(id){
+  selectedAddressId = id;
+  renderAddresses();
+}
+
+/* ======= Payment UI ======= */
+function initPaymentOptions(){
+  const options = Array.from(document.querySelectorAll(".pay-option"));
+  options.forEach(el => {
+    el.addEventListener("click", () => {
+      el.querySelector('input[type="radio"]').checked = true;
+      options.forEach(x => x.classList.remove("active"));
+      el.classList.add("active");
+      selectedPayment = el.dataset.method;
+      renderPaymentDetails();
+    });
+  });
+  document.querySelector('.pay-option[data-method="cod"]').classList.add("active");
+  renderPaymentDetails();
+}
+function renderPaymentDetails(){
+  const container = document.getElementById("paymentDetails");
+  container.innerHTML = "";
+  if(selectedPayment === "upi"){
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <div style="display:flex;gap:12px;align-items:center;">
+        <div style="min-width:110px"><div style="font-weight:700">UPI</div><div class="small">Google Pay · PhonePe · Paytm</div></div>
+        <div style="flex:1">
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button type="button" class="btn" data-upi="hitaishi@upi">Copy UPI ID</button>
+            <button type="button" id="showQrBtn" class="btn">Show QR</button>
+          </div>
+          <div id="upiInfo" style="margin-top:8px" class="small muted">UPI ID: <strong>hitaishi@upi</strong></div>
+          <div id="upiQr" style="margin-top:12px"></div>
+        </div>
+      </div>
+    `;
+    container.appendChild(div);
+    div.querySelectorAll('button[data-upi]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const upi = e.currentTarget.dataset.upi;
+        navigator.clipboard?.writeText(upi).then(()=> alert("UPI ID copied: " + upi)).catch(()=> alert("Unable to copy."));
+      });
+    });
+    div.querySelector('#showQrBtn').addEventListener('click', () => {
+      const qr = document.getElementById('upiQr'); qr.innerHTML = '';
+      const note = document.createElement('div'); note.className='muted'; note.textContent='Scan this QR with your UPI app (placeholder).';
+      const img = document.createElement('img'); img.src='https://placehold.co/200x200?text=QR+Placeholder'; img.alt='UPI QR'; img.style.borderRadius='8px'; img.style.marginTop='8px';
+      qr.appendChild(note); qr.appendChild(img);
+    });
+  } else if(selectedPayment === "card"){
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 140px;gap:10px;">
+        <div><label>Card number</label><input id="cardNumber" type="text" placeholder="xxxx xxxx xxxx xxxx" maxlength="19" /></div>
+        <div><label>Expiry</label><input id="cardExpiry" type="text" placeholder="MM/YY" maxlength="5" /></div>
+        <div style="grid-column:1/2"><label>Name on card</label><input id="cardName" type="text" /></div>
+        <div><label>CVV</label><input id="cardCvv" type="text" maxlength="4" /></div>
+      </div>
+      <div class="small muted" style="margin-top:8px;">We use a secure payment gateway. Card details are not stored on this device.</div>
+    `;
+    container.appendChild(div);
+  } else if(selectedPayment === "wallets"){
+    const div = document.createElement("div"); div.innerHTML = `<div class="small">Wallets supported: Paytm, PhonePe, Amazon Pay.</div>`; container.appendChild(div);
+  } else {
+    const div = document.createElement("div"); div.innerHTML = `<div class="small">Cash on delivery selected. Pay at delivery.</div>`; container.appendChild(div);
+  }
+}
+
+/* ======= Place order ======= */
+async function placeOrder(){
+  const placeBtn = document.getElementById("placeOrderBtn");
+  // validate address
+  if(!selectedAddressId){
+    alert("Please choose a delivery address before placing the order.");
+    return;
+  }
+  const addr = addresses.find(a=>a.id === selectedAddressId);
+  if(!addr){ alert("Selected address not found."); return; }
+
+  if(cart.length === 0){ alert("Your cart is empty."); return; }
+
+  placeBtn.disabled = true; placeBtn.textContent = "Placing order…";
+
+  const subtotal = Number(document.getElementById("subTotal").textContent.replace(/[^0-9.-]+/g,"")) || 0;
+
+  const orderPayload = {
+    items: cart,
+    totalAmount: subtotal,
+    address: addr,
+    paymentMethod: selectedPayment
+  };
+
+  try{
+    const res = await fetch(PLACE_ORDER_URL, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(orderPayload)
+    });
+
+    if(res.ok){
+      const json = await res.json();
+      localStorage.removeItem("cart");
+      localStorage.setItem("lastOrder", JSON.stringify({ id: json.orderId || json.id || ("HF"+Date.now().toString().slice(-6)), total: orderPayload.totalAmount }));
+      window.location.href = "thankyou.html";
+      return;
+    } else if(res.status === 401){
+      alert("Session expired — please login again.");
+      const returnTo = encodeURIComponent(window.location.pathname);
+      window.location.href = `${LOGIN_PAGE}?returnTo=${returnTo}`;
+      return;
+    } else {
+      const txt = await res.text(); console.warn("Order failed:", res.status, txt);
+      throw new Error("Order failed");
+    }
+  }catch(err){
+    console.error("Place order error, falling back to client save:", err);
+    try {
+      const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+      orders.push(Object.assign({ fallback:true, createdAt: new Date().toISOString() }, orderPayload));
+      localStorage.setItem("orders", JSON.stringify(orders));
+      localStorage.removeItem("cart");
+      alert("Order saved locally (offline). Redirecting to Thank you...");
+      window.location.href = "thankyou.html";
+      return;
+    } catch(e){
+      alert("Unable to place order. Please try again later.");
+    }
+  } finally {
+    placeBtn.disabled = false; placeBtn.textContent = "Place Order";
+  }
+}
+
+/* ======= Address modal controls ======= */
+function openAddModal(){
+  document.getElementById("modal_name").value = currentUser ? (currentUser.firstName + (currentUser.lastName?(" "+currentUser.lastName):"")) : "";
+  document.getElementById("modal_mobile").value = currentUser?.mobile || "";
+  document.getElementById("modal_address").value = "";
+  document.getElementById("modal_city").value = "";
+  document.getElementById("modal_state").value = "";
+  document.getElementById("modal_pincode").value = "";
+  showModal();
+  // set a flag to indicate new
+  document.getElementById("addressModal").dataset.editId = "";
+}
+function openEditModal(id){
+  const a = addresses.find(x=>x.id===id); if(!a) return;
+  document.getElementById("modal_name").value = a.name || "";
+  document.getElementById("modal_mobile").value = a.mobile || "";
+  document.getElementById("modal_address").value = a.address || "";
+  document.getElementById("modal_city").value = a.city || "";
+  document.getElementById("modal_state").value = a.state || "";
+  document.getElementById("modal_pincode").value = a.pincode || "";
+  document.getElementById("addressModal").dataset.editId = id;
+  showModal();
+}
+function showModal(){ document.getElementById("addressModal").style.display = "block"; }
+function hideModal(){ document.getElementById("addressModal").style.display = "none"; }
+
+function saveModalAddress(){
+  const id = document.getElementById("addressModal").dataset.editId || ("a"+Date.now().toString().slice(-6));
+  const entry = {
+    id,
+    name: document.getElementById("modal_name").value.trim(),
+    mobile: document.getElementById("modal_mobile").value.trim(),
+    address: document.getElementById("modal_address").value.trim(),
+    city: document.getElementById("modal_city").value.trim(),
+    state: document.getElementById("modal_state").value.trim(),
+    pincode: document.getElementById("modal_pincode").value.trim()
+  };
+  if(!entry.name || !entry.mobile || !entry.address || !entry.pincode) { alert("Please fill name, mobile, address and PIN."); return; }
+  // validate pincode minimally
+  if(!/^\d{6}$/.test(entry.pincode)) { if(!confirm("PIN doesn't look like 6 digits — continue?")) return; }
+  // if edit, replace
+  const existingIndex = addresses.findIndex(a=>a.id===id);
+  if(existingIndex !== -1) addresses[existingIndex] = entry;
+  else addresses.push(entry);
+  saveAddresses();
+  selectedAddressId = id;
+  renderAddresses();
+  hideModal();
+}
+
+/* ======= Init ======= */
+async function init(){
+  const ok = await checkAuthOrRedirect();
+  if(!ok) return;
+  loadCart();
+  initPaymentOptions();
+
+  // load addresses (local)
+  loadAddresses();
+
+  // if there is at least one address, select the first by default
+  if(addresses.length > 0 && !selectedAddressId) selectedAddressId = addresses[0].id;
+  renderAddresses();
+
+  // wire modal buttons
+  document.getElementById("addAddressBtn").addEventListener("click", openAddModal);
+  document.getElementById("closeModal").addEventListener("click", hideModal);
+  document.getElementById("cancelAddrBtn").addEventListener("click", hideModal);
+  document.getElementById("saveAddrBtn").addEventListener("click", saveModalAddress);
+
+  // place order
+  document.getElementById("placeOrderBtn").addEventListener("click", placeOrder);
+}
+
+/* ======= start ======= */
+window.addEventListener("DOMContentLoaded", init);
+</script>
 </body>
 </html>

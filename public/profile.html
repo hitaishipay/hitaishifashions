@@ -3,114 +3,274 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Profile - Hitaishi Fashion</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <title>My Account - Hitaishi Fashion</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
   <style>
     body {
+      margin: 0;
       font-family: 'Poppins', sans-serif;
-      background: #f9f9f9;
-      margin: 0;
-      padding: 0;
+      background: #f3f4f6;
     }
-    header {
-      background: #fff;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+
+    /* Container */
+    .account-container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 20px;
     }
-    header h1 {
-      margin: 0;
-      color: #ff3f6c;
-      font-size: 24px;
-      font-weight: 700;
-    }
-    .profile-container {
-      max-width: 600px;
+
+    /* Sidebar */
+    .sidebar {
       background: white;
-      border-radius: 16px;
-      box-shadow: 0 5px 25px rgba(0,0,0,0.1);
-      margin: 50px auto;
-      padding: 30px;
-      text-align: center;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+      height: fit-content;
     }
-    .profile-container img {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      border: 3px solid #ff3f6c;
+
+    .sidebar h2 {
+      font-size: 20px;
       margin-bottom: 20px;
     }
-    h2 {
-      color: #333;
-      margin: 0 0 10px;
-    }
-    p {
-      color: #555;
-      font-size: 15px;
-      margin: 5px 0;
-    }
-    .btn-logout {
-      background-color: #ff3f6c;
+
+    .sidebar .menu button {
+      width: 100%;
+      padding: 12px;
       border: none;
-      color: white;
+      background: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+      font-size: 15px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s;
+    }
+
+    .sidebar .menu button:hover {
+      background: #ffefef;
+      color: #ff3f6c;
+    }
+
+    /* Main Section */
+    .main-section {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .section-title {
+      font-size: 22px;
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+
+    /* Profile Card */
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .profile-header img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 3px solid #ff3f6c;
+    }
+
+    .profile-fields label {
+      font-weight: 600;
+      display: block;
+      margin-top: 10px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .btn-save {
       padding: 12px 25px;
+      background: #ff3f6c;
+      color: white;
+      border: none;
       font-size: 15px;
       border-radius: 8px;
       cursor: pointer;
       margin-top: 20px;
     }
-    .btn-logout:hover {
-      background-color: #e22c5c;
+
+    .btn-save:hover {
+      background: #d72b58;
+    }
+
+    .logout-btn {
+      background: #111;
+      color: white;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      margin-top: 20px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .logout-btn:hover {
+      background: red;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .account-container {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
+
 <body>
 
-  <header>
-    <h1>My Profile</h1>
-    <button class="btn-logout" id="logoutBtn">Logout</button>
-  </header>
+<div class="account-container">
 
-  <div class="profile-container" id="profileContainer">
-    <img src="uploads/default-profile.png" alt="Profile" id="profileImage">
-    <h2 id="userName">Loading...</h2>
-    <p id="userEmail"></p>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Your Account</h2>
+
+    <div class="menu">
+      <button onclick="showSection('profileSection')">
+        <i class="fa fa-user"></i> Personal Information
+      </button>
+
+      <button onclick="showSection('ordersSection')">
+        <i class="fa fa-box"></i> Your Orders
+      </button>
+
+      <button onclick="showSection('wishlistSection')">
+        <i class="fa fa-heart"></i> Wishlist
+      </button>
+
+      <button class="logout-btn" id="logoutBtn">
+        <i class="fa fa-sign-out"></i> Logout
+      </button>
+    </div>
   </div>
 
-  <script>
-    async function loadProfile() {
-      try {
-        const res = await fetch("http://localhost:5000/api/user", {
-          credentials: "include"
-        });
-        if (!res.ok) {
-          window.location.href = "login.html";
-          return;
-        }
-        const user = await res.json();
-        document.getElementById("userName").textContent = user.firstName + " " + user.lastName;
-        document.getElementById("userEmail").textContent = user.email;
-        document.getElementById("profileImage").src = "http://localhost:5000/uploads/default-profile.png";
-      } catch (err) {
-        console.error("Error loading profile:", err);
-        window.location.href = "login.html";
-      }
-    }
+  <!-- MAIN CONTENT -->
+  <div class="main-section">
 
-    document.getElementById("logoutBtn").addEventListener("click", async () => {
-      await fetch("http://localhost:5000/api/logout", {
-        method: "POST",
-        credentials: "include"
+    <!-- PROFILE SECTION -->
+    <div id="profileSection">
+      <h2 class="section-title">Personal Information</h2>
+
+      <div class="profile-header">
+        <img id="profileImage" src="uploads/default-profile.png">
+        <div>
+          <h3 id="userName">Loading...</h3>
+          <p id="userEmail"></p>
+        </div>
+      </div>
+
+      <div class="profile-fields">
+        <label>First Name</label>
+        <input id="firstName" type="text">
+
+        <label>Last Name</label>
+        <input id="lastName" type="text">
+
+        <label>Email (Cannot change)</label>
+        <input id="email" type="text" disabled>
+      </div>
+
+      <button class="btn-save">Save Changes</button>
+    </div>
+
+    <!-- ORDERS -->
+    <div id="ordersSection" style="display:none;">
+      <h2 class="section-title">Your Orders</h2>
+      <p>No orders found.</p>
+    </div>
+
+    <!-- WISHLIST -->
+    <div id="wishlistSection" style="display:none;">
+      <h2 class="section-title">Your Wishlist</h2>
+      <p>No wishlist items.</p>
+    </div>
+
+  </div>
+</div>
+
+
+<script>
+
+  function showSection(sectionID) {
+    document.getElementById("profileSection").style.display = "none";
+    document.getElementById("ordersSection").style.display = "none";
+    document.getElementById("wishlistSection").style.display = "none";
+
+    document.getElementById(sectionID).style.display = "block";
+  }
+
+  async function loadProfile() {
+    try {
+      const res = await fetch("http://localhost:5000/api/user", {
+        credentials: "include",
       });
-      localStorage.removeItem("user");
-      localStorage.removeItem("authToken");
-      window.location.href = "login.html";
+
+      if (!res.ok) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const user = await res.json();
+
+      // Display
+      document.getElementById("userName").textContent =
+        user.firstName + " " + user.lastName;
+
+      document.getElementById("userEmail").textContent = user.email;
+
+      document.getElementById("firstName").value = user.firstName;
+      document.getElementById("lastName").value = user.lastName;
+      document.getElementById("email").value = user.email;
+
+      // Profile image
+      document.getElementById("profileImage").src =
+        "http://localhost:5000" + user.profileImage;
+
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+
+  // LOGOUT
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    await fetch("http://localhost:5000/api/logout", {
+      method: "POST",
+      credentials: "include"
     });
 
-    loadProfile();
-  </script>
+    localStorage.removeItem("user");
+    localStorage.removeItem("authToken");
+
+    window.location.href = "login.html";
+  });
+
+  loadProfile();
+</script>
 
 </body>
 </html>

@@ -73,7 +73,8 @@ router.post("/register", async (req, res) => {
     res.cookie("authToken", token, {
       httpOnly: true,
       secure: false, // ✅ set true on HTTPS
-      sameSite: "none",
+      sameSite: "lax",
+      path: "/api",      // 🔥 MUST MATCH LOGIN
       maxAge: 24 * 60 * 60 * 1000,
     });
 
@@ -163,6 +164,7 @@ router.post("/login", async (req, res) => {
       httpOnly: true,
       secure: false,
       sameSite: "lax",
+      path: "/api",      // 🔥 MUST MATCH LOGIN
       maxAge: 24 * 60 * 60 * 1000,
     });
 
@@ -190,6 +192,7 @@ router.post("/logout", (req, res) => {
     httpOnly: true,
     secure: false,
     sameSite: "lax",
+    path: "/api",      // 🔥 MUST MATCH LOGIN
   });
   res.json({ message: "Logged out successfully." });
 });

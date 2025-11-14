@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Address Book - Hitaishi Fashion</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+ body { margin:0; font-family: Poppins, sans-serif; background:#f3f4f6; }
+ .container { max-width:1200px; margin:30px auto; padding:20px; }
+ .title { font-size:26px; font-weight:600; margin-bottom:20px; }
+
+ .address-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:20px; }
+ .address-card { background:#fff; border-radius:12px; padding:20px; box-shadow:0 5px 16px rgba(0,0,0,0.08); position:relative; }
+ .address-card h3 { margin:0 0 10px; font-size:18px; }
+ .address-card p { margin:4px 0; color:#444; }
+ .actions { margin-top:10px; display:flex; gap:10px; }
+ .btn { padding:10px 14px; border:none; border-radius:6px; cursor:pointer; font-size:14px; }
+ .btn-edit { background:#ffcc00; }
+ .btn-delete { background:#ff4747; color:#fff; }
+ .btn-add { background:#ff3f6c; color:#fff; padding:12px 18px; border-radius:8px; font-size:15px; }
+ 
+ /* Modal */
+ .modal-bg { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; }
+ .modal { background:#fff; width:90%; max-width:450px; padding:20px; border-radius:12px; }
+ .modal h2 { margin-top:0; }
+ .modal input { width:100%; padding:12px; margin:8px 0; border:1px solid #ccc; border-radius:6px; }
+ .modal-footer { display:flex; justify-content:flex-end; gap:10px; margin-top:10px; }
+ .btn-cancel { background:#777; color:#fff; }
+ .btn-save { background:#28a745; color:#fff; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="title">Your Addresses</div>
+
+  <button class="btn-add" onclick="openModal()"><i class="fa fa-plus"></i> Add New Address</button>
+
+  <div id="addressList" class="address-grid"></div>
+</div>
+
+<!-- Modal -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h2 id="modalTitle">Add Address</h2>
+
+    <input type="text" id="fullName" placeholder="Full Name">
+    <input type="text" id="phone" placeholder="Phone Number">
+    <input type="text" id="pincode" placeholder="Pincode">
+    <input type="text" id="addressLine" placeholder="Address Line">
+    <input type="text" id="city" placeholder="City">
+    <input type="text" id="state" placeholder="State">
+
+    <div class="modal-footer">
+      <button class="btn btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-save" onclick="saveAddress()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let editingId = null;
+let addresses = [];
+
+function renderAddresses() {
+  const container = document.getElementById('addressList');
+  container.innerHTML = '';
+
+  addresses.forEach((addr, idx) => {
+    container.innerHTML += `
+      <div class="address-card">
+        <h3>${addr.fullName}</h3>
+        <p><strong>Phone:</strong> ${addr.phone}</p>
+        <p>${addr.addressLine}, ${addr.city}, ${addr.state} - ${addr.pincode}</p>
+
+        <div class="actions">
+          <button class="btn btn-edit" onclick="editAddress(${idx})">Edit</button>
+          <button class="btn btn-delete" onclick="deleteAddress(${idx})">Delete</button>
+        </div>
+      </div>
+    `;
+  });
+}
+
+function openModal() {
+  editingId = null;
+  document.getElementById('modalTitle').innerText = 'Add Address';
+  clearForm();
+  document.getElementById('modalBg').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('modalBg').style.display = 'none';
+}
+
+function clearForm() {
+  document.getElementById('fullName').value = '';
+  document.getElementById('phone').value = '';
+  document.getElementById('pincode').value = '';
+  document.getElementById('addressLine').value = '';
+  document.getElementById('city').value = '';
+  document.getElementById('state').value = '';
+}
+
+function saveAddress() {
+  const addr = {
+    fullName: fullName.value,
+    phone: phone.value,
+    pincode: pincode.value,
+    addressLine: addressLine.value,
+    city: city.value,
+    state: state.value
+  };
+
+  if (editingId !== null) {
+    addresses[editingId] = addr;
+  } else {
+    addresses.push(addr);
+  }
+
+  closeModal();
+  renderAddresses();
+}
+
+function editAddress(id) {
+  editingId = id;
+  const a = addresses[id];
+  document.getElementById('modalTitle').innerText = 'Edit Address';
+
+  fullName.value = a.fullName;
+  phone.value = a.phone;
+  pincode.value = a.pincode;
+  addressLine.value = a.addressLine;
+  city.value = a.city;
+  state.value = a.state;
+
+  document.getElementById('modalBg').style.display = 'flex';
+}
+
+function deleteAddress(id) {
+  if (confirm('Delete this address?')) {
+    addresses.splice(id, 1);
+    renderAddresses();
+  }
+}
+
+renderAddresses();
+</script>
+</body>
+</html>

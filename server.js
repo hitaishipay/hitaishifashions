@@ -34,10 +34,14 @@ app.use((req, res, next) => {
 const registerRoute = require("./routes/register");
 const contactusRoute = require("./routes/contactus");
 const productsRoute = require("./routes/products");
+const ordersRoute = require("./routes/orders");
+
+
 
 app.use("/api", registerRoute);
 app.use("/api", contactusRoute);
 app.use("/api", productsRoute);
+app.use("/api", ordersRoute);
 
 // ✅ Static uploads
 app.use(

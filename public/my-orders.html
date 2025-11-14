@@ -3,204 +3,235 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Orders - Hitaishi Fashion</title>
+  <title>Your Orders - Hitaishi Fashions</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
   <style>
-    body {
-      font-family: "Segoe UI", Arial, sans-serif;
-      background: #f7f7f7;
-      margin: 0;
-      padding: 0;
+    :root {
+      --accent: #ffa41c;
+      --accent-dark: #f08804;
+      --muted: #6b6f76;
+      --bg: #f3f3f3;
+      --card-bg: #fff;
+      --shadow: 0 6px 20px rgba(0,0,0,0.06);
+      --radius: 10px;
+      font-family: 'Segoe UI', Arial, sans-serif;
     }
 
-    header {
-      background: #007185;
-      color: white;
-      padding: 15px 25px;
-      text-align: center;
-      font-size: 1.4rem;
-      font-weight: 600;
+    body {
+      margin: 0;
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
     }
 
     .container {
-      max-width: 1000px;
-      margin: 30px auto;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      padding: 25px;
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 16px;
     }
 
-    h2 {
-      text-align: center;
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+
+    .order-card {
+      background: var(--card-bg);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      border-radius: var(--radius);
       margin-bottom: 20px;
-      color: #111;
-    }
-
-    .order {
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      padding: 15px 20px;
-      background: #fafafa;
-      transition: 0.2s;
-    }
-
-    .order:hover {
-      background: #f0f8ff;
     }
 
     .order-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 8px;
-      margin-bottom: 10px;
-    }
-
-    .order-header h3 {
-      margin: 0;
-      color: #007185;
-      font-size: 1.1rem;
-    }
-
-    .order-header span {
-      font-size: 0.9rem;
-      color: #555;
-    }
-
-    .order-items {
-      display: flex;
       flex-wrap: wrap;
-      gap: 15px;
+      gap: 10px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+
+    .order-header div {
+      font-size: 0.95rem;
+    }
+
+    .items-list {
+      margin-top: 12px;
     }
 
     .item {
-      flex: 1 1 200px;
-      border: 1px solid #eee;
-      border-radius: 8px;
-      padding: 10px;
-      text-align: center;
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
     }
 
     .item img {
-      width: 100%;
-      max-width: 150px;
-      height: 150px;
+      width: 75px;
+      height: 75px;
       object-fit: contain;
+      background: #fff;
+      border: 1px solid #eee;
       border-radius: 6px;
     }
 
     .item-name {
-      font-weight: 500;
-      margin: 8px 0 5px;
+      font-size: 0.95rem;
+      font-weight: 600;
     }
 
-    .item-price {
-      color: #b12704;
-      font-weight: bold;
+    .btn {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      background: var(--accent);
+      font-weight: 600;
     }
 
-    .status {
-      color: #007600;
-      font-weight: bold;
+    .btn.details {
+      background: #e7e9eb;
     }
 
     .no-orders {
       text-align: center;
-      color: #777;
-      margin-top: 40px;
-    }
-
-    .back-btn {
-      display: inline-block;
-      margin: 25px auto 0;
-      background: #ffa41c;
-      color: #fff;
-      padding: 12px 25px;
-      border: none;
-      border-radius: 8px;
+      padding: 30px;
+      color: var(--muted);
       font-size: 1rem;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .back-btn:hover {
-      background: #fa8900;
     }
   </style>
 </head>
 <body>
-  <header>My Orders</header>
 
-  <div class="container" id="ordersContainer">
-    <h2>Your Recent Orders</h2>
-    <div id="ordersList"></div>
+<div class="container">
+  <h1>Your Orders</h1>
+  <div id="ordersRoot"></div>
+</div>
 
-    <div class="no-orders" id="noOrdersMsg" style="display:none;">
-      <p>You have no orders yet.</p>
-      <button class="back-btn" onclick="window.location.href='index.html'">Shop Now</button>
-    </div>
-  </div>
+<script>
+const ORDERS_URL = "http://localhost:5000/api/orders/my";
+const USER_URL   = "http://localhost:5000/api/user";
 
-  <script>
-    function loadOrders() {
-      const orders = JSON.parse(localStorage.getItem("orders") || "[]");
-      const container = document.getElementById("ordersList");
-      const noOrders = document.getElementById("noOrdersMsg");
+async function checkAuth() {
+  try {
+    const res = await fetch(USER_URL, { credentials: "include" });
+    if (!res.ok) {
+      window.location.href = "login.html?returnTo=/my-orders.html";
+      return null;
+    }
+    return await res.json();
+  } catch (err) {
+    window.location.href = "login.html?returnTo=/my-orders.html";
+  }
+}
 
-      if (orders.length === 0) {
-        noOrders.style.display = "block";
-        return;
-      }
+function formatINR(n) {
+  return "₹" + Number(n).toLocaleString("en-IN");
+}
 
-      container.innerHTML = orders.map(order => {
-       const itemsHTML = order.items.map(item => {
-        let imgSrc = "";
+function formatDate(dateStr) {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  });
+}
 
-        try {
-            // Parse images safely — supports JSON or array
-            let imgs = typeof item.image === "string" ? JSON.parse(item.image) : item.image;
-            if (Array.isArray(imgs) && imgs.length > 0) imgSrc = imgs[0];
-            else if (typeof item.image === "string") imgSrc = item.image;
-        } catch {
-            imgSrc = item.image || "";
-        }
+async function loadOrders() {
+  const root = document.getElementById("ordersRoot");
+  root.innerHTML = `<div class="muted">Loading orders...</div>`;
 
-        // Fix the path if missing /uploads/
-        const finalImg = imgSrc
-            ? (imgSrc.startsWith("/uploads")
-                ? `http://localhost:5000${imgSrc}`
-                : `http://localhost:5000/uploads/${imgSrc.replace(/^\/uploads\//, "")}`)
-            : "";
-
-        return `
-            <div class="item">
-            <img src="${finalImg}" alt="${item.name}">
-            <div class="item-name">${item.name}</div>
-            <div class="item-price">₹${item.price}</div>
-            </div>
-        `;
-        }).join("");
-
-
-        return `
-          <div class="order">
-            <div class="order-header">
-              <h3>Order #${order.id}</h3>
-              <span>${order.date}</span>
-            </div>
-            <p><strong>Total:</strong> ₹${order.total}</p>
-            <p><strong>Payment:</strong> ${order.payment}</p>
-            <p><strong>Status:</strong> <span class="status">${order.status}</span></p>
-            <div class="order-items">${itemsHTML}</div>
-          </div>
-        `;
-      }).join("");
+  try {
+    const res = await fetch(ORDERS_URL, { credentials: "include" });
+    if (!res.ok) {
+      root.innerHTML = `<div class="no-orders">You have no orders.</div>`;
+      return;
     }
 
-    loadOrders();
-  </script>
+    const orders = await res.json();
+    if (orders.length === 0) {
+      root.innerHTML = `<div class="no-orders">You have no orders yet.</div>`;
+      return;
+    }
+
+    root.innerHTML = "";
+
+    for (const order of orders) {
+      const orderCard = document.createElement("div");
+      orderCard.className = "order-card";
+
+      const address = JSON.parse(order.address || "{}");
+
+      orderCard.innerHTML = `
+        <div class="order-header">
+          <div><strong>Order ID:</strong> HF${order.id}</div>
+          <div><strong>Order Date:</strong> ${formatDate(order.created_at)}</div>
+          <div><strong>Total:</strong> ${formatINR(order.totalAmount)}</div>
+          <div><strong>Payment:</strong> ${order.paymentMethod.toUpperCase()}</div>
+        </div>
+        <div style="margin-top:10px;">
+          <strong>Ship to:</strong> ${address.name || ""}, ${address.address || ""}, ${address.city || ""} - ${address.pincode || ""}
+        </div>
+
+        <div class="items-list" id="items-${order.id}">
+          <div class="muted">Loading items...</div>
+        </div>
+
+        <div style="margin-top:12px; display:flex; gap:10px;">
+          <button class="btn">Track Order</button>
+          <button class="btn details" onclick="viewOrder(${order.id})">View Details</button>
+        </div>
+      `;
+
+      root.appendChild(orderCard);
+
+      loadOrderItems(order.id);
+    }
+  } catch (err) {
+    root.innerHTML = `<div class="no-orders">Error loading orders.</div>`;
+  }
+}
+
+async function loadOrderItems(orderId) {
+  try {
+    const res = await fetch(`http://localhost:5000/api/orders/${orderId}`, { credentials: "include" });
+    const json = await res.json();
+
+    const container = document.getElementById(`items-${orderId}`);
+    container.innerHTML = "";
+
+    json.items.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "item";
+      div.innerHTML = `
+        <img src="${item.image || "https://placehold.co/80"}" />
+        <div>
+          <div class="item-name">${item.name}</div>
+          <div>Qty: ${item.quantity}</div>
+          <div class="muted">${formatINR(item.price)}</div>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+
+  } catch (err) {
+    document.getElementById(`items-${orderId}`).innerHTML =
+      `<div class="muted">Unable to load items.</div>`;
+  }
+}
+
+function viewOrder(id) {
+  window.location.href = `order-details.html?order=${id}`;
+}
+
+(async function init() {
+  const user = await checkAuth();
+  if (user) loadOrders();
+})();
+</script>
+
 </body>
 </html>

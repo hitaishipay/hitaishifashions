@@ -408,23 +408,23 @@
     }
 
     .cart-btn { 
-      background: #ffd814; 
+      background:#ff3f6c; 
       color: #0f1111; 
       border: 1px solid #fcd200;
     }
 
     .cart-btn:hover { 
-      background: #f7ca00; 
+      background:#f81c50; 
     }
 
     .buy-btn { 
-      background: #ffa41c; 
+     background: linear-gradient(90deg, #e7408e, #7943dd);
       color: #0f1111; 
       border: 1px solid #ff8f00;
     }
 
     .buy-btn:hover { 
-      background: #fa8900; 
+      background: linear-gradient(90deg, #e2096f, #4a06c9);
     }
 
     /* Pagination - Amazon Style */
@@ -1056,38 +1056,37 @@ function renderProducts() {
     
     const isInWishlist = wishlist.some(item => item.id == p.id);
 
-    return `
-       <div class="card">
-        ${discount >= 20 ? `<div class="card-badge">${discount}% OFF</div>` : ''}
-        <div class="wishlist-icon ${isInWishlist ? 'active' : ''}" onclick="toggleWishlist(${p.id})">
-          <i class="fas fa-heart"></i>
-        </div>
-        <img src="${imgSrc}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/200x200?text=No+Image'">
-        <div class="card-content">
-          <h4>${p.name}</h4>
-          <div class="brand">${p.brand || ""}</div>
-          <div class="rating">
-            <span class="stars">${starIcons}</span>
-            <span class="rating-count">${rating}</span>
-          </div>
-          <div class="price-container">
-            <span class="price">₹${p.finalPrice}</span>
-            ${p.actualPrice > p.finalPrice ? `<span class="old-price">₹${p.actualPrice}</span>` : ''}
-            ${discount > 0 ? `<span class="discount">${discount}% off</span>` : ''}
-          </div>
-          <div class="prime-badge">
-            <i class="fas fa-shipping-fast"></i> FREE delivery
-          </div>
-        </div>
-        <div class="actions">
-          <button class="cart-btn" onclick="addToCart(${p.id})">
-            <i class="fas fa-shopping-cart"></i> Add to Cart
-          </button>
-          <button class="buy-btn" onclick="buyNow(${p.id})">
-            Buy Now
-          </button>
-        </div>
-      </div>`;
+return `
+<div class="card" onclick="viewProduct(${p.id})" style="cursor:pointer;">
+  ${discount >= 20 ? `<div class="card-badge">${discount}% OFF</div>` : ''}
+  <div class="wishlist-icon ${isInWishlist ? 'active' : ''}" onclick="event.stopPropagation(); toggleWishlist(${p.id})">
+    <i class="fas fa-heart"></i>
+  </div>
+  <img src="${imgSrc}" onclick="viewProduct(${p.id}); event.stopPropagation();" alt="${p.name}">
+  <div class="card-content">
+    <h4 onclick="viewProduct(${p.id}); event.stopPropagation();">${p.name}</h4>
+    <div class="brand">${p.brand || ""}</div>
+    <div class="rating">
+      <span class="stars">${starIcons}</span>
+      <span class="rating-count">${rating}</span>
+    </div>
+    <div class="price-container">
+      <span class="price">₹${p.finalPrice}</span>
+      ${p.actualPrice > p.finalPrice ? `<span class="old-price">₹${p.actualPrice}</span>` : ''}
+      ${discount > 0 ? `<span class="discount">${discount}% off</span>` : ''}
+    </div>
+  </div>
+
+  <div class="actions" onclick="event.stopPropagation();">
+    <button class="cart-btn" onclick="addToCart(${p.id}); event.stopPropagation();">
+      <i class="fas fa-shopping-cart"></i> Add to Cart
+    </button>
+    <button class="buy-btn" onclick="buyNow(${p.id}); event.stopPropagation();">
+      Buy Now
+    </button>
+  </div>
+</div>`;
+
   }).join("");
   
   // Render pagination

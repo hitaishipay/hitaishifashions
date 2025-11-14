@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Profile - Hitaishi Fashion</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 {
+      margin: 0;
+      color: #ff3f6c;
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .profile-container {
+      max-width: 600px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+      margin: 50px auto;
+      padding: 30px;
+      text-align: center;
+    }
+    .profile-container img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 3px solid #ff3f6c;
+      margin-bottom: 20px;
+    }
+    h2 {
+      color: #333;
+      margin: 0 0 10px;
+    }
+    p {
+      color: #555;
+      font-size: 15px;
+      margin: 5px 0;
+    }
+    .btn-logout {
+      background-color: #ff3f6c;
+      border: none;
+      color: white;
+      padding: 12px 25px;
+      font-size: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    .btn-logout:hover {
+      background-color: #e22c5c;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>My Profile</h1>
+    <button class="btn-logout" id="logoutBtn">Logout</button>
+  </header>
+
+  <div class="profile-container" id="profileContainer">
+    <img src="uploads/default-profile.png" alt="Profile" id="profileImage">
+    <h2 id="userName">Loading...</h2>
+    <p id="userEmail"></p>
+  </div>
+
+  <script>
+    async function loadProfile() {
+      try {
+        const res = await fetch("http://localhost:5000/api/user", {
+          credentials: "include"
+        });
+        if (!res.ok) {
+          window.location.href = "login.html";
+          return;
+        }
+        const user = await res.json();
+        document.getElementById("userName").textContent = user.firstName + " " + user.lastName;
+        document.getElementById("userEmail").textContent = user.email;
+        document.getElementById("profileImage").src = "http://localhost:5000/uploads/default-profile.png";
+      } catch (err) {
+        console.error("Error loading profile:", err);
+        window.location.href = "login.html";
+      }
+    }
+
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await fetch("http://localhost:5000/api/logout", {
+        method: "POST",
+        credentials: "include"
+      });
+      localStorage.removeItem("user");
+      localStorage.removeItem("authToken");
+      window.location.href = "login.html";
+    });
+
+    loadProfile();
+  </script>
+
+</body>
+</html>

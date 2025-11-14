@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Details - Hitaishi Fashion</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #ff9900;
+      --secondary-color: #ffa41c;
+      --text-color: #111;
+      --light-gray: #f3f3f3;
+      --medium-gray: #ddd;
+      --dark-gray: #565959;
+      --success-color: #007600;
+      --price-color: #b12704;
+      --brand-color: #007185;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: var(--light-gray);
+      margin: 0;
+      padding: 0;
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .image-section { 
+      flex: 1 1 400px; 
+      text-align: center; 
+    }
+    
+    .main-image {
+      width: 100%; 
+      max-width: 400px; 
+      height: 400px;
+      object-fit: contain; 
+      border: 1px solid var(--medium-gray); 
+      border-radius: 10px;
+    }
+    
+    .thumbnail-container { 
+      margin-top: 10px; 
+      display: flex; 
+      justify-content: center; 
+      gap: 10px; 
+      flex-wrap: wrap; 
+    }
+    
+    .thumbnail {
+      width: 60px; 
+      height: 60px; 
+      object-fit: cover;
+      border: 2px solid transparent; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      transition: border 0.2s ease;
+    }
+    
+    .thumbnail:hover, .thumbnail.active { 
+      border-color: var(--primary-color); 
+    }
+
+    .details-section { 
+      flex: 1 1 600px; 
+    }
+    
+    h2 { 
+      font-size: 1.8rem; 
+      margin-bottom: 5px; 
+    }
+    
+    .brand { 
+      color: var(--brand-color); 
+      font-size: 1rem; 
+      margin-bottom: 10px; 
+    }
+    
+    .rating { 
+      color: #f0c14b; 
+      margin-bottom: 10px; 
+      font-size: 1.1rem; 
+    }
+    
+    .price-container { 
+      margin-bottom: 15px; 
+    }
+    
+    .price { 
+      color: var(--price-color); 
+      font-size: 2rem; 
+      font-weight: bold; 
+    }
+    
+    .old-price { 
+      text-decoration: line-through; 
+      color: var(--dark-gray); 
+      margin-left: 10px; 
+    }
+    
+    .discount { 
+      color: var(--success-color); 
+      font-weight: bold; 
+      margin-left: 10px; 
+    }
+    
+    .stock { 
+      color: var(--success-color); 
+      font-size: 1.1rem; 
+      margin-bottom: 15px; 
+    }
+    
+    .description { 
+      line-height: 1.6; 
+      color: #333; 
+      margin-bottom: 20px; 
+    }
+
+    .offers {
+      background: #f7fafa; 
+      padding: 15px; 
+      border-radius: 8px;
+      border: 1px solid var(--medium-gray); 
+      margin-bottom: 20px;
+    }
+    
+    .offers h3 { 
+      margin: 0 0 10px; 
+      font-size: 1.1rem; 
+      color: var(--text-color); 
+    }
+    
+    .offers ul { 
+      list-style: none; 
+      padding-left: 0; 
+    }
+    
+    .offers li { 
+      margin-bottom: 6px; 
+      color: #333; 
+      font-size: 0.95rem; 
+    }
+
+    .buttons { 
+      display: flex; 
+      gap: 15px; 
+      margin-top: 25px; 
+    }
+    
+    .buttons button {
+      flex: 1; 
+      padding: 14px; 
+      border: none; 
+      border-radius: 8px;
+      cursor: pointer; 
+      font-size: 1.1rem; 
+      transition: 0.3s;
+    }
+    
+    .cart-btn { 
+      background-color: #ffd814; 
+    }
+    
+    .cart-btn:hover { 
+      background-color: #f7ca00; 
+    }
+    
+    .buy-btn { 
+      background-color: var(--secondary-color); 
+      color: white; 
+    }
+    
+    .buy-btn:hover { 
+      background-color: #fa8900; 
+    }
+
+    .reviews, .related-section {
+      max-width: 1200px; 
+      margin: 40px auto; 
+      background: #fff;
+      padding: 20px 30px; 
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .review-item { 
+      border-top: 1px solid #eee; 
+      padding: 15px 0; 
+    }
+    
+    .review-item:first-child { 
+      border-top: none; 
+    }
+    
+    .review-stars { 
+      color: #f0c14b; 
+      font-size: 1.1rem; 
+    }
+    
+    .review-text { 
+      color: #333; 
+      margin-top: 5px; 
+    }
+
+    .related-section h3 {
+      margin-bottom: 20px;
+    }
+
+    .related-products {
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px; 
+      margin-bottom: 20px;
+    }
+    
+    .related-card {
+      border: 1px solid #eee; 
+      border-radius: 8px;
+      padding: 10px; 
+      text-align: center; 
+      cursor: pointer; 
+      transition: 0.2s;
+    }
+    
+    .related-card:hover { 
+      transform: scale(1.03); 
+      border-color: var(--primary-color); 
+    }
+    
+    .related-card img { 
+      width: 100%; 
+      height: 150px; 
+      object-fit: contain; 
+      border-radius: 6px; 
+    }
+
+    /* Pagination Styles */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .pagination button {
+      padding: 8px 16px;
+      border: 1px solid var(--medium-gray);
+      background-color: white;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .pagination button:hover:not(:disabled) {
+      background-color: var(--light-gray);
+    }
+
+    .pagination button.active {
+      background-color: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .pagination button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .pagination-info {
+      font-size: 0.9rem;
+      color: var(--dark-gray);
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 900px) {
+      .container { 
+        flex-direction: column; 
+        margin: 10px;
+        padding: 15px;
+      }
+      
+      .reviews, .related-section {
+        margin: 20px 10px;
+        padding: 15px 20px;
+      }
+      
+      .buttons {
+        flex-direction: column;
+      }
+      
+      .main-image {
+        height: 300px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        margin: 5px;
+        padding: 10px;
+        gap: 20px;
+      }
+      
+      .main-image {
+        height: 250px;
+      }
+      
+      h2 {
+        font-size: 1.5rem;
+      }
+      
+      .price {
+        font-size: 1.5rem;
+      }
+      
+      .buttons button {
+        padding: 12px;
+        font-size: 1rem;
+      }
+      
+      .thumbnail {
+        width: 50px;
+        height: 50px;
+      }
+      
+      .related-products {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      }
+      
+      .pagination {
+        flex-wrap: wrap;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .related-products {
+        grid-template-columns: 1fr 1fr;
+      }
+      
+      .thumbnail-container {
+        gap: 5px;
+      }
+      
+      .thumbnail {
+        width: 40px;
+        height: 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="image-section">
+      <img id="mainImage" class="main-image" src="" alt="Product Image">
+      <div class="thumbnail-container" id="thumbnailContainer"></div>
+    </div>
+
+    <div class="details-section">
+      <h2 id="productTitle">Loading...</h2>
+      <div class="brand" id="productBrand"></div>
+      <div class="rating" id="productRating"></div>
+      <div class="price-container">
+        <span class="price" id="productPrice"></span>
+        <span class="old-price" id="productActual"></span>
+        <span class="discount" id="productDiscount"></span>
+      </div>
+      <div class="stock" id="productStock"></div>
+
+      <div class="offers">
+        <h3>Available Offers</h3>
+        <ul>
+          <li><i class="fa-solid fa-credit-card"></i> 10% Instant Discount on HDFC Bank Cards</li>
+          <li><i class="fa-solid fa-coins"></i> ₹100 cashback on first UPI transaction</li>
+          <li><i class="fa-solid fa-tag"></i> No Cost EMI available on select cards</li>
+        </ul>
+      </div>
+
+      <p class="description" id="productDescription"></p>
+
+      <div class="buttons">
+        <button class="cart-btn" onclick="addToCart()">Add to Cart</button>
+        <button class="buy-btn" onclick="buyNow()">Buy Now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reviews -->
+  <div class="reviews">
+    <h3>Customer Reviews</h3>
+    <div class="review-item">
+      <div class="review-stars">★★★★☆</div>
+      <div class="review-text">Great quality product, delivery was fast!</div>
+    </div>
+    <div class="review-item">
+      <div class="review-stars">★★★☆☆</div>
+      <div class="review-text">Good product but packaging could be better.</div>
+    </div>
+  </div>
+
+  <!-- Related Products -->
+  <div class="related-section">
+    <h3>Related Products</h3>
+    <div class="related-products" id="relatedProducts"></div>
+    <div class="pagination" id="paginationContainer">
+      <button id="prevBtn" onclick="changePage(currentPage - 1)">Previous</button>
+      <div id="pageNumbers" class="page-numbers"></div>
+      <button id="nextBtn" onclick="changePage(currentPage + 1)">Next</button>
+      <div class="pagination-info" id="paginationInfo"></div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "http://localhost:5000/api/products";
+    let currentProduct = null;
+    let relatedProducts = [];
+    let currentPage = 1;
+    const productsPerPage = 4;
+
+    async function loadProduct() {
+      const params = new URLSearchParams(location.search);
+      const id = params.get("id");
+      if (!id) return alert("Invalid Product ID");
+
+      try {
+        const res = await fetch(`${API_URL}/${id}`);
+        if (!res.ok) throw new Error("Product not found");
+        const product = await res.json();
+        currentProduct = product;
+
+        document.getElementById("productTitle").textContent = product.name;
+        document.getElementById("productBrand").textContent = product.brand || "";
+        document.getElementById("productPrice").textContent = `₹${product.finalPrice}`;
+        document.getElementById("productActual").textContent = `₹${product.actualPrice}`;
+        document.getElementById("productDiscount").textContent = `${product.discount}% OFF`;
+        document.getElementById("productStock").textContent = product.stock > 0 ? "In Stock" : "Out of Stock";
+        document.getElementById("productDescription").textContent = product.description || "No description available";
+        document.getElementById("productRating").textContent = "★★★★☆ (4.2)";
+
+        // Parse images safely
+        let imgs = [];
+        try {
+          imgs = typeof product.images === "string" ? JSON.parse(product.images) : product.images || [];
+          if (!Array.isArray(imgs)) imgs = [imgs];
+          imgs = imgs.map(i => typeof i === "string" ? i : i?.filename || i?.path || "").filter(Boolean);
+        } catch { imgs = []; }
+
+        const mainImage = document.getElementById("mainImage");
+        const thumbnails = document.getElementById("thumbnailContainer");
+
+        if (imgs.length > 0) {
+          const firstImg = imgs[0].startsWith("/uploads")
+            ? `http://localhost:5000${imgs[0]}`
+            : `http://localhost:5000/uploads/${imgs[0].replace(/^\/uploads\//, "")}`;
+          mainImage.src = firstImg;
+
+          thumbnails.innerHTML = imgs.map((img, i) => {
+            const src = img.startsWith("/uploads")
+              ? `http://localhost:5000${img}`
+              : `http://localhost:5000/uploads/${img.replace(/^\/uploads\//, "")}`;
+            return `<img src="${src}" class="thumbnail ${i === 0 ? "active" : ""}" onclick="changeImage('${src}', this)">`;
+          }).join("");
+        } else {
+          mainImage.src = "https://via.placeholder.com/400x400?text=No+Image";
+        }
+
+        loadRelatedProducts(product.brand, product.category);
+      } catch (err) {
+        console.error("Error loading product:", err);
+        document.body.innerHTML = "<h2 style='text-align:center;color:red'>Failed to load product details.</h2>";
+      }
+    }
+
+    async function loadRelatedProducts(brand, category) {
+      try {
+        const res = await fetch(API_URL);
+        const products = await res.json();
+        // Filter out the current product from related products
+        relatedProducts = products.filter(p => 
+          (p.brand === brand || p.category === category) && p.id !== currentProduct.id
+        );
+        
+        renderRelatedProducts();
+        setupPagination();
+      } catch (err) {
+        console.error("Error loading related products:", err);
+        document.getElementById("relatedProducts").innerHTML = "<p>Failed to load related products.</p>";
+      }
+    }
+
+    function renderRelatedProducts() {
+      const container = document.getElementById("relatedProducts");
+      
+      if (relatedProducts.length === 0) {
+        container.innerHTML = "<p>No related products found.</p>";
+        return;
+      }
+
+      // Calculate the products to show for the current page
+      const startIndex = (currentPage - 1) * productsPerPage;
+      const endIndex = startIndex + productsPerPage;
+      const productsToShow = relatedProducts.slice(startIndex, endIndex);
+
+      container.innerHTML = productsToShow.map(p => {
+        let imgSrc = "";
+        try {
+          const imgs = JSON.parse(p.images || "[]");
+          if (Array.isArray(imgs) && imgs.length > 0) imgSrc = imgs[0];
+        } catch { imgSrc = ""; }
+
+        const fullImg = imgSrc
+          ? (imgSrc.startsWith("/uploads") ? `http://localhost:5000${imgSrc}` : `http://localhost:5000/uploads/${imgSrc}`)
+          : "https://placehold.co/150x150?text=No+Image";
+
+        return `
+          <div class="related-card" onclick="viewProduct(${p.id})">
+            <img src="${fullImg}" alt="${p.name}">
+            <p>${p.name}</p>
+            <strong>₹${p.finalPrice}</strong>
+          </div>`;
+      }).join("");
+    }
+
+    function setupPagination() {
+      const totalPages = Math.ceil(relatedProducts.length / productsPerPage);
+      const pageNumbersContainer = document.getElementById("pageNumbers");
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const paginationInfo = document.getElementById("paginationInfo");
+      
+      // Update pagination info
+      const startIndex = (currentPage - 1) * productsPerPage + 1;
+      const endIndex = Math.min(currentPage * productsPerPage, relatedProducts.length);
+      paginationInfo.textContent = `Showing ${startIndex}-${endIndex} of ${relatedProducts.length} products`;
+      
+      // Enable/disable previous and next buttons
+      prevBtn.disabled = currentPage === 1;
+      nextBtn.disabled = currentPage === totalPages;
+      
+      // Generate page number buttons
+      pageNumbersContainer.innerHTML = '';
+      
+      // Show first page, current page, and last page with ellipsis if needed
+      const maxVisiblePages = 5;
+      let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+      let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+      
+      // Adjust start page if we're at the end
+      if (endPage - startPage + 1 < maxVisiblePages) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+      }
+      
+      // Add first page with ellipsis if needed
+      if (startPage > 1) {
+        addPageButton(1);
+        if (startPage > 2) {
+          pageNumbersContainer.innerHTML += '<span>...</span>';
+        }
+      }
+      
+      // Add page numbers
+      for (let i = startPage; i <= endPage; i++) {
+        addPageButton(i);
+      }
+      
+      // Add last page with ellipsis if needed
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+          pageNumbersContainer.innerHTML += '<span>...</span>';
+        }
+        addPageButton(totalPages);
+      }
+      
+      function addPageButton(page) {
+        const button = document.createElement('button');
+        button.textContent = page;
+        button.classList.toggle('active', page === currentPage);
+        button.onclick = () => changePage(page);
+        pageNumbersContainer.appendChild(button);
+      }
+    }
+
+    function changePage(page) {
+      const totalPages = Math.ceil(relatedProducts.length / productsPerPage);
+      
+      if (page < 1 || page > totalPages) return;
+      
+      currentPage = page;
+      renderRelatedProducts();
+      setupPagination();
+      
+      // Scroll to related products section for better UX
+      document.querySelector('.related-section').scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }
+
+    function changeImage(src, thumb) {
+      document.getElementById("mainImage").src = src;
+      document.querySelectorAll(".thumbnail").forEach(t => t.classList.remove("active"));
+      thumb.classList.add("active");
+    }
+
+    function addToCart() {
+      let cart;
+      try {
+        const stored = localStorage.getItem("cart");
+        cart = stored ? JSON.parse(stored) : [];
+        if (!Array.isArray(cart)) cart = []; // ✅ ensure it's always an array
+      } catch {
+        cart = [];
+      }
+
+      // ✅ Add product if not already in cart
+      const exists = cart.find(item => item.id === currentProduct.id);
+      if (!exists) {
+        cart.push({ ...currentProduct, quantity: 1 });
+        localStorage.setItem("cart", JSON.stringify(cart));
+      }
+
+      alert("🛒 Product added to cart!");
+      window.location.href = "cart.html";
+    }
+
+    function buyNow() {
+      localStorage.setItem("buyNowProduct", JSON.stringify(currentProduct));
+      window.location.href = "buy-now.html";
+    }
+
+    function viewProduct(id) {
+      window.location.href = `product-details.html?id=${id}`;
+    }
+
+    loadProduct();
+  </script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload Product - Hitaishi Fashion</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f7f7f7;
+      padding: 20px;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #444;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    label {
+      font-weight: bold;
+    }
+    input, select, textarea {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 100%;
+      font-size: 15px;
+    }
+    button {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .image-uploader {
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.3s;
+    }
+    .image-uploader.dragover {
+      border-color: #007bff;
+    }
+    .preview-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .preview-item {
+      position: relative;
+    }
+    .preview-item img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+    .remove-btn {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: red;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .add-more {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 80px;
+      height: 80px;
+      border: 2px dashed #ccc;
+      border-radius: 6px;
+      color: #777;
+      font-size: 28px;
+      cursor: pointer;
+    }
+    .add-more:hover {
+      border-color: #007bff;
+      color: #007bff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Upload Product</h2>
+
+    <form id="productForm" enctype="multipart/form-data">
+      <label>Product Name</label>
+      <input type="text" name="name" required />
+
+      <label>Department</label>
+      <select name="department" id="department" required>
+        <option value="">-- Select Department --</option>
+        <option>Electronics</option>
+        <option>Clothing</option>
+        <option>Home & Kitchen</option>
+        <option>Beauty</option>
+        <option>Sports</option>
+        <option>Toys</option>
+        <option>Books</option>
+        <option>Fashion</option>
+      </select>
+
+      <label>Category</label>
+      <select name="category" id="category" required>
+        <option value="">-- Select Category --</option>
+      </select>
+
+      <label>Subcategory</label>
+      <select name="subcategory" id="subcategory">
+        <option value="">-- Select Subcategory --</option>
+      </select>
+
+      <label>Brand</label>
+      <input type="text" name="brand" required />
+
+      <label>Actual Price (₹)</label>
+      <input type="number" name="actualPrice" id="actualPrice" step="0.01" required />
+
+      <label>Discount (%)</label>
+      <input type="number" name="discount" id="discount" required />
+
+      <label>Final Price (₹)</label>
+      <input type="number" name="finalPrice" id="finalPrice" readonly />
+
+      <label>Stock</label>
+      <input type="number" name="stock" required />
+
+      <label>Description</label>
+      <textarea name="description" rows="3"></textarea>
+
+      <label>Product Images (max 5)</label>
+      <div class="image-uploader" id="dropZone">
+        <p>📸 Drag & drop images here or click to select</p>
+        <input type="file" name="images" id="images" accept="image/*" multiple style="display:none" />
+      </div>
+      <div class="preview-container" id="preview">
+        <div class="add-more" id="addMore">+</div>
+      </div>
+
+      <button type="submit">Upload Product</button>
+    </form>
+  </div>
+
+  <script>
+    // 🧠 Category logic per department
+    const categoryMap = {
+      Electronics: ["Mobiles", "Laptops", "Monitors", "Headphones"],
+      Clothing: ["Men", "Women", "Kids"],
+      "Home & Kitchen": ["Furniture", "Appliances", "Decor"],
+      Beauty: ["Makeup", "Skincare", "Haircare"],
+      Sports: ["Cricket", "Football", "Gym Equipment"],
+      Toys: ["Educational", "Soft Toys", "Outdoor"],
+      Books: ["Fiction", "Non-fiction", "Comics"],
+      Fashion: ["Shoes", "Handbags", "Accessories"],
+    };
+
+    const subcategoryMap = {
+      Mobiles: ["Smartphones", "Feature Phones"],
+      Laptops: ["Gaming", "Business", "Student"],
+      Men: ["Shirts", "Trousers", "T-Shirts"],
+      Women: ["Dresses", "Tops", "Ethnic Wear"],
+      Kids: ["Boys", "Girls"],
+      Furniture: ["Beds", "Sofas", "Chairs"],
+      Makeup: ["Lipstick", "Foundation", "Eyeliner"],
+    };
+
+    const departmentSelect = document.getElementById("department");
+    const categorySelect = document.getElementById("category");
+    const subcategorySelect = document.getElementById("subcategory");
+
+    departmentSelect.addEventListener("change", () => {
+      const dept = departmentSelect.value;
+      categorySelect.innerHTML = `<option value="">-- Select Category --</option>`;
+      subcategorySelect.innerHTML = `<option value="">-- Select Subcategory --</option>`;
+      if (categoryMap[dept]) {
+        categoryMap[dept].forEach(cat => {
+          const opt = document.createElement("option");
+          opt.textContent = cat;
+          categorySelect.appendChild(opt);
+        });
+      }
+    });
+
+    categorySelect.addEventListener("change", () => {
+      const cat = categorySelect.value;
+      subcategorySelect.innerHTML = `<option value="">-- Select Subcategory --</option>`;
+      if (subcategoryMap[cat]) {
+        subcategoryMap[cat].forEach(sub => {
+          const opt = document.createElement("option");
+          opt.textContent = sub;
+          subcategorySelect.appendChild(opt);
+        });
+      }
+    });
+
+    // 💰 Auto final price calculation
+    document.getElementById("discount").addEventListener("input", updateFinalPrice);
+    document.getElementById("actualPrice").addEventListener("input", updateFinalPrice);
+    function updateFinalPrice() {
+      const price = parseFloat(document.getElementById("actualPrice").value) || 0;
+      const discount = parseFloat(document.getElementById("discount").value) || 0;
+      const final = price - (price * discount / 100);
+      document.getElementById("finalPrice").value = final.toFixed(2);
+    }
+
+    // 🖼️ Multi image upload (max 5)
+    const dropZone = document.getElementById("dropZone");
+    const imageInput = document.getElementById("images");
+    const previewContainer = document.getElementById("preview");
+    const addMore = document.getElementById("addMore");
+    let filesArray = [];
+
+    dropZone.addEventListener("click", () => imageInput.click());
+    addMore.addEventListener("click", () => imageInput.click());
+    imageInput.addEventListener("change", (e) => addFiles(e.target.files));
+
+    dropZone.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dropZone.classList.add("dragover");
+    });
+    dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dragover"));
+    dropZone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dropZone.classList.remove("dragover");
+      addFiles(e.dataTransfer.files);
+    });
+
+    function addFiles(files) {
+      for (let file of files) {
+        if (!file.type.startsWith("image/")) continue;
+        if (filesArray.length >= 5) {
+          alert("You can upload up to 5 images only!");
+          break;
+        }
+        filesArray.push(file);
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const div = document.createElement("div");
+          div.classList.add("preview-item");
+          div.innerHTML = `
+            <img src="${ev.target.result}" alt="preview">
+            <button class="remove-btn">&times;</button>
+          `;
+          div.querySelector(".remove-btn").addEventListener("click", () => {
+            previewContainer.removeChild(div);
+            filesArray = filesArray.filter(f => f !== file);
+            updateFileInput();
+          });
+          previewContainer.insertBefore(div, addMore);
+        };
+        reader.readAsDataURL(file);
+      }
+      updateFileInput();
+    }
+
+    function updateFileInput() {
+      const dataTransfer = new DataTransfer();
+      filesArray.forEach(f => dataTransfer.items.add(f));
+      imageInput.files = dataTransfer.files;
+    }
+
+    // 🚀 Submit product
+    document.getElementById("productForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      try {
+        const res = await fetch("http://localhost:5000/api/upload-product", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+        alert(data.message || data.error);
+        if (data.message) e.target.reset();
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    });
+  </script>
+</body>
+</html>

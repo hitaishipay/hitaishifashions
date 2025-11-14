@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hitaishi Fashions - Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Poppins", sans-serif;
+      background-color: #fef6f8;
+    }
+
+    /* HEADER */
+    header {
+      background-color: #fff;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      padding: 15px 0;
+    }
+    header .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    header h1 {
+      margin: 0;
+      color: #ff3f6c;
+      font-size: 24px;
+      font-weight: 700;
+    }
+    header a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+    }
+
+    /* MAIN */
+    main {
+      max-width: 500px;
+      width: 90%;
+      margin: 50px auto;
+    }
+    .form-container {
+      background-color: #fff;
+      border-radius: 16px;
+      box-shadow: 0 5px 30px rgba(0, 0, 0, 0.08);
+      padding: 40px 30px;
+      box-sizing: border-box;
+    }
+    h2 {
+      margin: 0 0 25px;
+      color: #333;
+      font-size: 28px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    /* FORM ELEMENTS */
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #555;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 15px;
+      box-sizing: border-box;
+    }
+    input:focus {
+      border-color: #ff3f6c !important;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background-color: #ff3f6c;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #e62e5c !important;
+    }
+
+    /* MESSAGE BOX */
+    #message-box {
+      margin-top: 20px;
+      display: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .forgot-link {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .forgot-link a {
+      color: #ff3f6c;
+      font-size: 13px;
+      text-decoration: none;
+    }
+
+    .signup-text {
+      text-align: center;
+      color: #777;
+      font-size: 14px;
+      margin-top: 25px;
+    }
+    .signup-text a {
+      color: #ff3f6c;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px 20px;
+      color: #777;
+      font-size: 13px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 600px) {
+      main {
+        margin: 30px auto;
+      }
+      .form-container {
+        padding: 25px 20px;
+      }
+      h2 {
+        font-size: 24px;
+      }
+      input,
+      button {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <a href="#"><h1>Hitaishi Fashions</h1></a>
+      <a href="register.html">Create Account</a>
+    </div>
+  </header>
+
+  <!-- Login Form -->
+  <main>
+    <div class="form-container">
+      <h2>Welcome Back</h2>
+      <form id="loginForm">
+        <div style="margin-bottom:20px;">
+          <label>Email Address</label>
+          <input id="email" type="email" placeholder="your@email.com" required />
+        </div>
+
+        <div style="margin-bottom:25px;">
+          <div class="forgot-link">
+            <label>Password</label>
+            <a href="forgotpassword.html">Forgot Password?</a>
+          </div>
+          <input id="password" type="password" placeholder="••••••••" required />
+        </div>
+
+        <button type="submit">Login</button>
+        <div id="message-box"></div>
+      </form>
+
+      <div class="signup-text">
+        Don't have an account?
+        <a href="register.html">Sign up</a>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 Hitaishi Fashions. All rights reserved.</p>
+  </footer>
+
+  <script>
+   // login.js
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+
+  try {
+    const response = await fetch("http://localhost:5000/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+      credentials: "include" // important for HttpOnly cookie
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      // Store token + user info for header display
+      localStorage.setItem("authToken", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Redirect to dashboard
+      window.location.href = "index.html";
+    } else {
+      alert(data.error);
+    }
+  } catch (error) {
+    console.error("Login error:", error);
+  }
+});
+
+  </script>
+</body>
+</html>

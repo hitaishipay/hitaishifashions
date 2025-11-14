@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Cart - Hitaishi Fashion</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --amazon-orange: #ff9900;
+      --amazon-dark: #232f3e;
+      --amazon-light: #f0f2f2;
+      --amazon-blue: #007185;
+      --amazon-red: #b12704;
+      --amazon-gray: #565959;
+      --amazon-border: #d5d9d9;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #f3f3f3;
+      color: #0f1111;
+      line-height: 1.5;
+    }
+
+    .header {
+      background-color: var(--amazon-dark);
+      color: white;
+      padding: 12px 0;
+    }
+
+    .header-container {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+    }
+
+    .logo i {
+      color: var(--amazon-orange);
+      margin-right: 8px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    .nav-links a:hover {
+      color: var(--amazon-orange);
+    }
+
+    .container {
+      max-width: 1500px;
+      margin: 30px auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding: 0 20px;
+    }
+
+    /* ---- Cart Items ---- */
+    .cart-section {
+      flex: 2;
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 5px rgba(15,17,17,.15);
+      border: 1px solid var(--amazon-border);
+    }
+
+    .cart-section h2 {
+      font-size: 1.75rem;
+      font-weight: 400;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--amazon-border);
+    }
+
+    .cart-item {
+      display: flex;
+      gap: 20px;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--amazon-border);
+    }
+
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+
+    .cart-item img {
+      width: 180px;
+      height: 180px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .cart-info {
+      flex: 1;
+    }
+
+    .cart-info h4 {
+      margin: 0 0 8px;
+      color: #0f1111;
+      font-size: 1.2rem;
+      font-weight: 400;
+    }
+
+    .cart-info p {
+      margin: 3px 0;
+      color: var(--amazon-gray);
+      font-size: 0.95rem;
+    }
+
+    .price {
+      color: var(--amazon-red);
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .stock {
+      color: #007600;
+      font-size: 0.85rem;
+      margin-top: 5px;
+    }
+
+    .quantity-selector {
+      display: flex;
+      align-items: center;
+      margin: 10px 0;
+    }
+
+    .quantity-selector select {
+      width: 80px;
+      padding: 6px;
+      border-radius: 7px;
+      border: 1px solid var(--amazon-border);
+      background-color: #f0f2f2;
+      box-shadow: 0 2px 5px rgba(15,17,17,.15);
+      margin-right: 10px;
+    }
+
+    .cart-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .cart-actions button {
+      background: none;
+      border: none;
+      color: var(--amazon-blue);
+      cursor: pointer;
+      font-size: 0.9rem;
+      padding: 0;
+      transition: color 0.2s, text-decoration 0.2s;
+    }
+
+    .cart-actions button:hover {
+      color: var(--amazon-red);
+      text-decoration: underline;
+    }
+
+    /* ---- Sidebar ---- */
+    .summary {
+      flex: 1;
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      height: fit-content;
+      box-shadow: 0 2px 5px rgba(15,17,17,.15);
+      border: 1px solid var(--amazon-border);
+      min-width: 300px;
+    }
+
+    .summary h3 {
+      margin-top: 0;
+      font-size: 1.3rem;
+      font-weight: 400;
+      border-bottom: 1px solid var(--amazon-border);
+      padding-bottom: 10px;
+    }
+
+    .summary .price-line {
+      display: flex;
+      justify-content: space-between;
+      margin: 12px 0;
+      font-size: 1rem;
+    }
+
+    .summary-total {
+      font-weight: bold;
+      color: var(--amazon-red);
+      font-size: 1.2rem;
+      border-top: 1px solid var(--amazon-border);
+      padding-top: 12px;
+      margin-top: 10px;
+    }
+
+    .buy-btn {
+      width: 100%;
+      background: var(--amazon-orange);
+      color: #0f1111;
+      border: none;
+      padding: 10px;
+      border-radius: 20px;
+      font-size: 1rem;
+      margin-top: 15px;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-weight: 500;
+      box-shadow: 0 2px 5px rgba(15,17,17,.15);
+    }
+
+    .buy-btn:hover {
+      background: #ff8c00;
+    }
+
+    .secure-checkout {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: var(--amazon-gray);
+    }
+
+    .secure-checkout i {
+      color: #28a428;
+      margin-right: 5px;
+    }
+
+    .empty-cart {
+      text-align: center;
+      padding: 40px;
+      font-size: 1.1rem;
+      color: #444;
+    }
+
+    .empty-cart a {
+      color: var(--amazon-blue);
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 15px;
+      padding: 8px 15px;
+      border: 1px solid var(--amazon-border);
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .empty-cart a:hover {
+      background-color: var(--amazon-light);
+    }
+
+    /* Saved Items Section */
+    #savedItems {
+      margin-top: 30px;
+      width: 100%;
+    }
+
+    .related-items {
+      margin-top: 15px;
+      background: #fafafa;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid var(--amazon-border);
+    }
+
+    .related-items h5 {
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    .related-products {
+      display: flex;
+      gap: 15px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+    }
+
+    .related-product {
+      flex: 0 0 auto;
+      width: 150px;
+      text-align: center;
+      border: 1px solid var(--amazon-border);
+      border-radius: 8px;
+      padding: 10px;
+      background: white;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .related-product:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .related-product img {
+      width: 100%;
+      height: 120px;
+      object-fit: contain;
+      margin-bottom: 8px;
+    }
+
+    .related-product p {
+      font-size: 0.85rem;
+      margin: 5px 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .related-price {
+      color: var(--amazon-red);
+      font-weight: bold;
+    }
+
+    /* Footer */
+    .footer {
+      background-color: var(--amazon-dark);
+      color: white;
+      padding: 30px 0;
+      margin-top: 50px;
+    }
+
+    .footer-container {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+
+    .footer-section {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .footer-section h4 {
+      margin-bottom: 15px;
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    .footer-section ul {
+      list-style: none;
+    }
+
+    .footer-section ul li {
+      margin-bottom: 8px;
+    }
+
+    .footer-section a {
+      color: #ddd;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    .footer-section a:hover {
+      color: white;
+      text-decoration: underline;
+    }
+
+    .copyright {
+      text-align: center;
+      padding-top: 20px;
+      margin-top: 20px;
+      border-top: 1px solid #444;
+      font-size: 0.85rem;
+      color: #aaa;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+      .container {
+        max-width: 95%;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .summary {
+        width: 100%;
+      }
+
+      .cart-item {
+        flex-direction: column;
+      }
+
+      .cart-item img {
+        width: 100%;
+        max-width: 300px;
+        height: auto;
+        align-self: center;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .mobile-menu {
+        display: block;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .header-container {
+        padding: 0 15px;
+      }
+
+      .container {
+        padding: 0 15px;
+      }
+
+      .cart-section, .summary {
+        padding: 15px;
+      }
+
+      .cart-actions {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .footer-container {
+        flex-direction: column;
+        gap: 20px;
+      }
+    }
+
+    /* Additional Amazon-style elements */
+    .amazon-badge {
+      background-color: var(--amazon-red);
+      color: white;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      margin-left: 8px;
+    }
+
+    .gift-option {
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .gift-option input {
+      margin-right: 8px;
+    }
+
+    .delivery-info {
+      margin-top: 15px;
+      padding: 10px;
+      background-color: var(--amazon-light);
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+
+    .delivery-info i {
+      color: #28a428;
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-container">
+      <a href="index.html" class="logo">
+        <i class="fas fa-crown"></i>
+        Hitaishi Fashion
+      </a>
+      <div class="nav-links">
+        <a href="products.html">All Products</a>
+        <a href="deals.html">Today's Deals</a>
+        <a href="customer-service.html">Customer Service</a>
+        <a href="account.html">Your Account</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <section class="cart-section">
+      <h2>Shopping Cart <span class="amazon-badge" id="itemCount">0 items</span></h2>
+      <div id="cartItems"></div>
+    </section>
+
+    <aside class="summary">
+      <h3>Order Summary</h3>
+      <div class="price-line"><span id="itemsLabel">Items (0):</span> <span id="cartTotal">₹0</span></div>
+      <div class="price-line"><span>Shipping & handling:</span> <span>Free</span></div>
+      <div class="price-line"><span>GST (5%):</span> <span id="gstAmount">₹0</span></div>
+      <div class="price-line"><span>Discount (10%):</span> <span id="discountAmount">-₹0</span></div>
+      <div class="summary-total"><span>Order Total:</span> <span id="grandTotal">₹0</span></div>
+      
+      <div class="gift-option">
+        <input type="checkbox" id="giftCheckbox">
+        <label for="giftCheckbox">This order contains a gift</label>
+      </div>
+      
+      <button class="buy-btn" onclick="checkout()">Proceed to Checkout</button>
+      
+      <div class="secure-checkout">
+        <i class="fas fa-lock"></i> Secure checkout
+      </div>
+      
+      <div class="delivery-info">
+        <i class="fas fa-shipping-fast"></i>
+        <span>Your order is eligible for FREE Delivery</span>
+      </div>
+    </aside>
+  </div>
+
+  <section id="savedItems" class="cart-section" style="margin-top:20px;"></section>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-section">
+        <h4>Get to Know Us</h4>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Press Releases</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Connect with Us</h4>
+        <ul>
+          <li><a href="#"><i class="fab fa-facebook"></i> Facebook</a></li>
+          <li><a href="#"><i class="fab fa-twitter"></i> Twitter</a></li>
+          <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Make Money with Us</h4>
+        <ul>
+          <li><a href="#">Sell on Hitaishi</a></li>
+          <li><a href="#">Become an Affiliate</a></li>
+          <li><a href="#">Advertise Your Products</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Let Us Help You</h4>
+        <ul>
+          <li><a href="#">Your Account</a></li>
+          <li><a href="#">Returns Centre</a></li>
+          <li><a href="#">100% Purchase Protection</a></li>
+          <li><a href="#">Help</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="copyright">
+      &copy; 2023 Hitaishi Fashion. All rights reserved.
+    </div>
+  </footer>
+
+  <script>
+    let cart = [];
+    let savedForLater = [];
+
+    // Initialize with sample data for demonstration
+    function initializeSampleData() {
+      if (!localStorage.getItem("cart") || localStorage.getItem("cart") === "[]") {
+        cart = [
+          {
+            name: "Men's Cotton T-Shirt",
+            brand: "Hitaishi Basics",
+            price: 599,
+            finalPrice: 499,
+            quantity: 2,
+            image: "https://placehold.co/300x300?text=T-Shirt"
+          },
+          {
+            name: "Women's Floral Dress",
+            brand: "Hitaishi Fashion",
+            price: 1299,
+            finalPrice: 999,
+            quantity: 1,
+            image: "https://placehold.co/300x300?text=Dress"
+          },
+          {
+            name: "Running Shoes",
+            brand: "Hitaishi Sport",
+            price: 2499,
+            finalPrice: 1999,
+            quantity: 1,
+            image: "https://placehold.co/300x300?text=Shoes"
+          }
+        ];
+        localStorage.setItem("cart", JSON.stringify(cart));
+      } else {
+        cart = JSON.parse(localStorage.getItem("cart")) || [];
+      }
+      
+      savedForLater = JSON.parse(localStorage.getItem("savedForLater")) || [];
+    }
+
+    async function loadCart() {
+      initializeSampleData();
+      
+      const container = document.getElementById("cartItems");
+      const savedContainer = document.getElementById("savedItems");
+      const totalElem = document.getElementById("cartTotal");
+      const gstElem = document.getElementById("gstAmount");
+      const discountElem = document.getElementById("discountAmount");
+      const grandElem = document.getElementById("grandTotal");
+      const itemCountElem = document.getElementById("itemCount");
+      const itemsLabel = document.getElementById("itemsLabel");
+
+      // Calculate total items and subtotal
+      let subtotal = 0;
+      let totalItems = 0;
+      
+      cart.forEach(item => {
+        const price = Number(item.finalPrice || item.price || 0);
+        const qty = parseInt(item.quantity) || 1;
+        subtotal += price * qty;
+        totalItems += qty;
+      });
+
+      // Update item count
+      itemCountElem.textContent = `${totalItems} ${totalItems === 1 ? 'item' : 'items'}`;
+      itemsLabel.textContent = `Items (${totalItems}):`;
+
+      if (cart.length === 0) {
+        container.innerHTML = `
+          <div class="empty-cart">
+            <p>Your Hitaishi Fashion Cart is empty</p>
+            <a href="products.html">
+              <i class="fas fa-shopping-bag"></i> Shop today's deals
+            </a>
+          </div>`;
+        totalElem.textContent = "₹0";
+        if (gstElem) gstElem.textContent = "₹0";
+        if (discountElem) discountElem.textContent = "-₹0";
+        grandElem.textContent = "₹0";
+      } else {
+        // Render cart items
+        container.innerHTML = cart.map((p, i) => renderCartItem(p, i)).join("");
+
+        // Apply GST (5%) and Discount (10%)
+        const gst = subtotal * 0.05;
+        const discount = subtotal * 0.10;
+        const grandTotal = subtotal + gst - discount;
+
+        // Update values on screen
+        totalElem.textContent = `₹${subtotal.toLocaleString("en-IN")}`;
+        if (gstElem) gstElem.textContent = `₹${gst.toLocaleString("en-IN")}`;
+        if (discountElem) discountElem.textContent = `-₹${discount.toLocaleString("en-IN")}`;
+        grandElem.textContent = `₹${grandTotal.toLocaleString("en-IN")}`;
+      }
+
+      // Saved for later
+      if (savedForLater.length === 0) {
+        savedContainer.innerHTML = "";
+      } else {
+        savedContainer.innerHTML = `
+          <h3>Saved for Later</h3>
+          ${savedForLater.map((p, i) => renderSavedItem(p, i)).join("")}
+        `;
+      }
+    }
+
+    function renderCartItem(p, i) {
+      const name = p.name || p.productName || p.title || "Unnamed Product";
+      const brand = p.brand || p.brandName || p.company || (p.details && p.details.brand) || "Unknown Brand";
+      const price = Number(p.finalPrice || p.price || p.actualPrice || 0);
+      const qty = parseInt(p.quantity) || 1;
+      const itemTotal = price * qty;
+
+      let imgSrc = "https://placehold.co/150x150?text=No+Image";
+      if (p.image) {
+        imgSrc = p.image.startsWith("/uploads")
+          ? "http://localhost:5000" + p.image
+          : p.image;
+      }
+
+      return `
+        <div class="cart-item">
+          <img src="${imgSrc}" alt="${name}">
+          <div class="cart-info">
+            <h4>${name}</h4>
+            <p><strong>Brand:</strong> ${brand}</p>
+            <p class="price">₹${price.toLocaleString("en-IN")}</p>
+            <p class="stock">In Stock</p>
+            
+            <div class="quantity-selector">
+              <label for="qty-${i}">Qty:</label>
+              <select id="qty-${i}" onchange="updateQty(${i}, this.value)">
+                ${Array.from({length: 10}, (_, idx) => 
+                  `<option value="${idx+1}" ${idx+1 === qty ? 'selected' : ''}>${idx+1}</option>`
+                ).join('')}
+              </select>
+            </div>
+            
+            <p><strong>Subtotal:</strong> <span class="price">₹${itemTotal.toLocaleString("en-IN")}</span></p>
+            
+            <div class="cart-actions">
+              <button onclick="removeItem(${i})">
+                <i class="fas fa-trash"></i> Delete
+              </button>
+              <button onclick="saveForLater(${i})">
+                <i class="far fa-bookmark"></i> Save for later
+              </button>
+              <button onclick="shareItem('${name}', '${imgSrc}')">
+                <i class="fas fa-share-alt"></i> Share
+              </button>
+              <button onclick="seeMore('${name}', ${i})">
+                <i class="fas fa-search"></i> See more like this
+              </button>
+            </div>
+            <div id="related-${i}" class="related-items"></div>
+          </div>
+        </div>`;
+    }
+
+    function renderSavedItem(p, i) {
+      const name = p.name || p.productName || "Unnamed Product";
+      const price = parseFloat(p.finalPrice || p.price || 0);
+      const imgSrc = p.image
+        ? (p.image.startsWith("/uploads") ? "http://localhost:5000" + p.image : p.image)
+        : "https://placehold.co/120x120?text=No+Image";
+
+      return `
+        <div class="cart-item" style="background:#fafafa;">
+          <img src="${imgSrc}" alt="${name}">
+          <div class="cart-info">
+            <h4>${name}</h4>
+            <p class="price">₹${price.toLocaleString("en-IN")}</p>
+            <div class="cart-actions">
+              <button onclick="removeSaved(${i})">
+                <i class="fas fa-trash"></i> Remove
+              </button>
+              <button onclick="moveToCart(${i})">
+                <i class="fas fa-cart-plus"></i> Move to cart
+              </button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function updateQty(index, qty) {
+      qty = parseInt(qty);
+      if (qty < 1) qty = 1;
+      cart[index].quantity = qty;
+      localStorage.setItem("cart", JSON.stringify(cart));
+      loadCart();
+    }
+
+    function removeItem(index) {
+      cart.splice(index, 1);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      loadCart();
+    }
+
+    function saveForLater(index) {
+      const item = cart.splice(index, 1)[0];
+      savedForLater.push(item);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      localStorage.setItem("savedForLater", JSON.stringify(savedForLater));
+      loadCart();
+    }
+
+    function removeSaved(index) {
+      savedForLater.splice(index, 1);
+      localStorage.setItem("savedForLater", JSON.stringify(savedForLater));
+      loadCart();
+    }
+
+    function moveToCart(index) {
+      const item = savedForLater.splice(index, 1)[0];
+      cart.push(item);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      localStorage.setItem("savedForLater", JSON.stringify(savedForLater));
+      loadCart();
+    }
+
+    function shareItem(name, img) {
+      const link = `${window.location.origin}/product-details.html?name=${encodeURIComponent(name)}`;
+      const text = `🛍️ Check out this product: ${name}\n${link}`;
+      if (navigator.share) {
+        navigator.share({ title: name, text, url: link }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(text);
+        alert("🔗 Product link copied!");
+      }
+    }
+
+    async function seeMore(name, index) {
+      const relatedDiv = document.getElementById(`related-${index}`);
+      relatedDiv.innerHTML = "<p style='color:#777'>Loading related products...</p>";
+
+      try {
+        // Simulate API call with sample data
+        setTimeout(() => {
+          const sampleRelated = [
+            { name: "Casual T-Shirt", price: 399, image: "https://placehold.co/150x150?text=Casual+T" },
+            { name: "Polo Shirt", price: 699, image: "https://placehold.co/150x150?text=Polo+Shirt" },
+            { name: "Graphic Tee", price: 549, image: "https://placehold.co/150x150?text=Graphic+Tee" }
+          ];
+          
+          relatedDiv.innerHTML = `
+            <h5>Customers who viewed this item also viewed</h5>
+            <div class="related-products">
+              ${sampleRelated.map(p => `
+                <div class="related-product">
+                  <img src="${p.image}" alt="${p.name}">
+                  <p style="font-size:0.9rem;margin:5px 0;">${p.name}</p>
+                  <p class="related-price">₹${p.price}</p>
+                </div>
+              `).join("")}
+            </div>`;
+        }, 1000);
+      } catch (err) {
+        console.error("Error fetching related items:", err);
+        relatedDiv.innerHTML = "<p style='color:#777'>Error loading related items.</p>";
+      }
+    }
+
+    function checkout() {
+      if (cart.length === 0) return alert("Your cart is empty!");
+      alert("✅ Proceeding to checkout...");
+      window.location.href = "checkout.html";
+    }
+
+    // Initialize the page
+    loadCart();
+  </script>
+</body>
+</html>

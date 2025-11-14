@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - Hitaishi Fashion</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f3f3f3;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 30px auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 25px;
+      padding: 0 15px;
+    }
+
+    /* ---- Left: Address & Payment ---- */
+    .checkout-left {
+      flex: 2;
+      background: #fff;
+      border-radius: 10px;
+      padding: 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .checkout-left h3 {
+      margin-top: 0;
+      color: #111;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 8px;
+      margin-bottom: 15px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    /* ---- Right: Summary ---- */
+    .checkout-right {
+      flex: 1;
+      background: #fff;
+      border-radius: 10px;
+      padding: 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      min-width: 300px;
+      height: fit-content;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0;
+    }
+
+    .summary-total {
+      font-weight: bold;
+      color: #b12704;
+      font-size: 1.2rem;
+      border-top: 1px solid #eee;
+      padding-top: 10px;
+    }
+
+    .place-order-btn {
+      width: 100%;
+      background: #ffa41c;
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      margin-top: 25px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .place-order-btn:hover {
+      background: #fa8900;
+    }
+
+    .cart-items-preview {
+      margin-top: 15px;
+    }
+
+    .cart-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .cart-item img {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+
+    .cart-item p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #333;
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Left Section: Address & Payment -->
+    <div class="checkout-left">
+      <h3>Delivery Address</h3>
+
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="name" placeholder="Enter full name" required>
+      </div>
+
+      <div class="form-group">
+        <label>Mobile Number</label>
+        <input type="text" id="mobile" placeholder="Enter mobile number" required>
+      </div>
+
+      <div class="form-group">
+        <label>Address</label>
+        <textarea id="address" rows="3" placeholder="Enter full address" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>City</label>
+        <input type="text" id="city" placeholder="City" required>
+      </div>
+
+      <div class="form-group">
+        <label>State</label>
+        <input type="text" id="state" placeholder="State" required>
+      </div>
+
+      <div class="form-group">
+        <label>PIN Code</label>
+        <input type="text" id="pincode" placeholder="6-digit code" required>
+      </div>
+
+      <h3>Payment Method</h3>
+      <div class="form-group">
+        <label><input type="radio" name="payment" value="cod" checked> Cash on Delivery (COD)</label><br>
+        <label><input type="radio" name="payment" value="upi"> UPI (Google Pay / PhonePe)</label><br>
+        <label><input type="radio" name="payment" value="card"> Credit / Debit Card</label>
+      </div>
+    </div>
+
+    <!-- Right Section: Order Summary -->
+    <div class="checkout-right">
+      <h3>Order Summary</h3>
+      <div id="summaryItems"></div>
+      <div class="summary-total">
+        <span>Total:</span>
+        <span id="grandTotal">₹0</span>
+      </div>
+      <button class="place-order-btn" onclick="placeOrder()">Place Order</button>
+    </div>
+  </div>
+
+  <script>
+    let cart = [];
+
+    function loadSummary() {
+      try {
+        const stored = localStorage.getItem("cart");
+        cart = stored ? JSON.parse(stored) : [];
+        if (!Array.isArray(cart)) cart = [];
+      } catch {
+        cart = [];
+      }
+
+      const summaryContainer = document.getElementById("summaryItems");
+      const totalElem = document.getElementById("grandTotal");
+
+      if (cart.length === 0) {
+        summaryContainer.innerHTML = "<p>Your cart is empty.</p>";
+        totalElem.textContent = "₹0";
+        return;
+      }
+
+      let total = 0;
+      summaryContainer.innerHTML = `
+        <div class="cart-items-preview">
+          ${cart.map(p => {
+            let imgSrc = "https://placehold.co/80x80?text=No+Image";
+            if (p.images && p.images.length) {
+              if (p.images[0].startsWith("/uploads")) {
+                imgSrc = "http://localhost:5000" + p.images[0];
+              } else {
+                imgSrc = "http://localhost:5000/uploads/" + p.images[0].replace(/^\/uploads\//, "");
+              }
+            }
+
+            const price = parseFloat(p.finalPrice) || 0;
+            const qty = parseInt(p.quantity) || 1;
+            const subtotal = price * qty;
+            total += subtotal;
+
+            return `
+              <div class="cart-item">
+                <img src="${imgSrc}" alt="${p.name}">
+                <div>
+                  <p>${p.name}</p>
+                  <p>Qty: ${qty}</p>
+                  <p>₹${subtotal.toLocaleString("en-IN")}</p>
+                </div>
+              </div>`;
+          }).join("")}
+        </div>
+      `;
+
+      totalElem.textContent = "\u20B9" + total.toLocaleString("en-IN");
+    }
+
+    function placeOrder() {
+  const name = document.getElementById("name").value.trim();
+  const mobile = document.getElementById("mobile").value.trim();
+  const address = document.getElementById("address").value.trim();
+  const city = document.getElementById("city").value.trim();
+  const state = document.getElementById("state").value.trim();
+  const pincode = document.getElementById("pincode").value.trim();
+  const payment = document.querySelector('input[name="payment"]:checked')?.value;
+
+  if (!name || !mobile || !address || !city || !state || !pincode) {
+    alert("⚠️ Please fill in all delivery details!");
+    return;
+  }
+
+  if (cart.length === 0) {
+    alert("Your cart is empty!");
+    return;
+  }
+
+  // 🧾 Create order data before clearing the cart
+  const order = {
+    id: "HF" + Date.now().toString().slice(-6),
+    name,
+    mobile,
+    address,
+    city,
+    state,
+    pincode,
+    date: new Date().toLocaleDateString("en-IN"),
+    total: document.getElementById("grandTotal").textContent.replace("₹", "").trim(),
+    payment,
+    status: "Processing",
+    items: cart,
+  };
+
+  // 📦 Save to localStorage
+  const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+  orders.push(order);
+  localStorage.setItem("orders", JSON.stringify(orders));
+
+  // 🧹 Optional: Save for thankyou.html
+  localStorage.setItem("lastOrderTotal", order.total);
+  localStorage.setItem("lastPaymentMethod", payment);
+
+  // 🛒 Clear cart
+  localStorage.removeItem("cart");
+
+  alert(`✅ Order placed successfully!\n\nThank you, ${name}!\nPayment: ${payment.toUpperCase()}`);
+  window.location.href = "thankyou.html"; // redirect to success page
+}
+
+    loadSummary();
+
+  </script>
+</body>
+</html>

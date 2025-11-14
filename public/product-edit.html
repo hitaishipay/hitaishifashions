@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Edit Product | Hitaishi Fashions</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <style>
+    body { font-family: "Poppins", sans-serif; background:#f8f9fa; padding:20px;}
+    .card { max-width: 900px; margin: 10px auto; }
+    .file-row { display:flex; align-items:center; gap:10px; padding:6px 0; }
+    .file-row .name { flex:1; font-size:0.95rem; }
+    .file-row .actions { gap:6px; }
+    .removed { text-decoration: line-through; color: #888; }
+  </style>
+</head>
+<body>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h4 class="card-title">✏️ Edit Product</h4>
+      <form id="editForm" enctype="multipart/form-data">
+        <input type="hidden" id="productId" />
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Name</label>
+            <input class="form-control" id="name" name="name" required />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Category</label>
+            <input class="form-control" id="category" name="category" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Brand</label>
+            <input class="form-control" id="brand" name="brand" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Actual Price</label>
+            <input class="form-control" id="actualPrice" name="actualPrice" type="number" step="0.01" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Discount (%)</label>
+            <input class="form-control" id="discount" name="discount" type="number" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Final Price</label>
+            <input class="form-control" id="finalPrice" name="finalPrice" type="number" step="0.01" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Stock</label>
+            <input class="form-control" id="stock" name="stock" type="number" />
+          </div>
+          <div class="col-12">
+            <label class="form-label">Description</label>
+            <textarea id="description" name="description" class="form-control" rows="4"></textarea>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Existing Images (filenames)</label>
+            <div id="existingImages" class="mb-2"></div>
+            <small class="text-muted">Click Delete to mark file for removal (file will be deleted on save).</small>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Upload New Images (optional)</label>
+            <input type="file" id="newImages" name="images" class="form-control" multiple />
+          </div>
+
+          <div class="col-12">
+            <button class="btn btn-primary" type="submit">Save Changes</button>
+            <a href="admin.html" class="btn btn-secondary">Back</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<script>
+const API_BASE = "http://localhost:5000/api/products";
+const qs = new URLSearchParams(location.search);
+const id = qs.get("id");
+const removedImages = new Set(); // stores filenames (or partial paths) to remove
+
+if (!id) {
+  alert("No product id provided");
+  location.href = "admin.html";
+}
+
+document.getElementById("productId").value = id;
+
+async function loadProduct() {
+  try {
+    const res = await fetch(`${API_BASE}/${id}?t=${Date.now()}`);
+    if (!res.ok) throw new Error("Product not found");
+    const product = await res.json();
+
+    // Fill inputs
+    document.getElementById("name").value = product.name || "";
+    document.getElementById("category").value = product.category || "";
+    document.getElementById("brand").value = product.brand || "";
+    document.getElementById("actualPrice").value = product.actualPrice || "";
+    document.getElementById("discount").value = product.discount || "";
+    document.getElementById("finalPrice").value = product.finalPrice || "";
+    document.getElementById("stock").value = product.stock || "";
+    document.getElementById("description").value = product.description || "";
+
+    // Render existing images as filenames with delete links (Option B)
+    let imgs = [];
+    try {
+      imgs = typeof product.images === "string" ? JSON.parse(product.images) : product.images || [];
+      if (!Array.isArray(imgs)) imgs = [imgs];
+    } catch {
+      imgs = [];
+    }
+
+    const container = document.getElementById("existingImages");
+    container.innerHTML = "";
+    if (imgs.length === 0) {
+      container.innerHTML = '<div class="text-muted">No images uploaded</div>';
+    } else {
+      imgs.forEach((imgPath, idx) => {
+        const filename = imgPath.replace(/^\/?uploads\/?/, "");
+        const row = document.createElement("div");
+        row.className = "file-row";
+        row.dataset.path = imgPath;
+        row.innerHTML = `
+          <div class="name" id="name-${idx}">${filename}</div>
+          <div class="actions">
+            <button type="button" class="btn btn-sm btn-danger" onclick="toggleRemove(${idx})" id="btn-${idx}">Delete</button>
+            <a class="btn btn-sm btn-outline-secondary" href="${
+              imgPath.startsWith("/") ? "http://localhost:5000" + imgPath : "http://localhost:5000/uploads/" + filename
+            }" target="_blank">Open</a>
+          </div>`;
+        container.appendChild(row);
+      });
+    }
+
+    // ✅ Trigger one-time recalculation after values load
+    updateDiscount();
+    updateFinalPrice();
+
+  } catch (err) {
+    console.error(err);
+    alert("Failed to load product");
+    location.href = "admin.html";
+  }
+}
+
+// ✅ Toggle image delete/undo
+window.toggleRemove = function (idx) {
+  const row = document.querySelector(`#existingImages .file-row:nth-child(${idx + 1})`);
+  if (!row) return;
+  const path = row.dataset.path;
+  if (removedImages.has(path)) {
+    removedImages.delete(path);
+    row.classList.remove("removed");
+    row.querySelector("button").textContent = "Delete";
+  } else {
+    removedImages.add(path);
+    row.classList.add("removed");
+    row.querySelector("button").textContent = "Undo";
+  }
+};
+
+// ✅ Handle Save
+document.getElementById("editForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const fd = new FormData();
+  fd.append("name", document.getElementById("name").value);
+  fd.append("category", document.getElementById("category").value);
+  fd.append("brand", document.getElementById("brand").value);
+  fd.append("actualPrice", document.getElementById("actualPrice").value || 0);
+  fd.append("discount", document.getElementById("discount").value || 0);
+  fd.append("finalPrice", document.getElementById("finalPrice").value || 0);
+  fd.append("stock", document.getElementById("stock").value || 0);
+  fd.append("description", document.getElementById("description").value || "");
+  fd.append("removedImages", JSON.stringify(Array.from(removedImages)));
+
+  const fileInput = document.getElementById("newImages");
+  if (fileInput.files.length > 0) {
+    for (const f of fileInput.files) fd.append("images", f);
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/edit/${id}`, { method: "PUT", body: fd });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Failed to update");
+    alert(data.message || "Updated successfully");
+    location.href = "admin.html";
+  } catch (err) {
+    console.error(err);
+    alert("Save failed: " + (err.message || err));
+  }
+});
+
+// ✅ Auto discount/final price calculation
+function updateDiscount() {
+  const actual = parseFloat(document.getElementById("actualPrice").value) || 0;
+  const finalP = parseFloat(document.getElementById("finalPrice").value) || 0;
+  if (actual > 0 && finalP >= 0) {
+    const discount = ((actual - finalP) / actual) * 100;
+    document.getElementById("discount").value = Math.round(discount);
+  }
+}
+
+function updateFinalPrice() {
+  const actual = parseFloat(document.getElementById("actualPrice").value) || 0;
+  const discount = parseFloat(document.getElementById("discount").value) || 0;
+  if (actual > 0 && discount >= 0) {
+    const finalP = actual - (actual * discount / 100);
+    document.getElementById("finalPrice").value = finalP.toFixed(2);
+  }
+}
+
+// ✅ Attach listeners AFTER loadProduct sets data
+document.getElementById("actualPrice").addEventListener("input", () => {
+  updateDiscount();
+  updateFinalPrice();
+});
+document.getElementById("finalPrice").addEventListener("input", updateDiscount);
+document.getElementById("discount").addEventListener("input", updateFinalPrice);
+
+// ✅ Initialize
+loadProduct();
+</script>
+
+</body>
+</html>
